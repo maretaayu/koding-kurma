@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator POV | Getting Started as an AI Engineer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Lexend:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --gold-deep: #B38B4D;
+            --gold-light: #D4AF37;
+            --bronze-text: #3D2B1F;
+            --muted-text: #706259;
+            --divider-line: rgba(179, 139, 77, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+        }
+
+        body {
+            background-color: #F4EBE0;
+            color: var(--bronze-text);
+            font-family: 'Lexend', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* ----------------------------------
+           CORE LAYOUT SYSTEM
+           ---------------------------------- */
+        .reveal .slides {
+            width: 100% !important;
+            height: 100% !important;
+            left: 0 !important;
+            top: 0 !important;
+            margin: 0 !important;
+        }
+
+        .reveal .slides section {
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            top: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Luxury Wide & Expansive Overlay */
+        .content-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(1.8);
+            -webkit-backdrop-filter: blur(30px) saturate(1.6);
+
+            width: 72%;
+            max-width: 1400px;
+            min-height: 400px;
+
+            border-radius: 40px;
+            padding: 50px 75px;
+            box-sizing: border-box;
+
+            box-shadow:
+                0 40px 120px rgba(74, 55, 40, 0.03),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            border: 1px solid var(--divider-line);
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            position: relative;
+
+            /* VERTICAL POSITION - GIVING BREATHING ROOM TO THE TOP LOGO */
+            margin-top: 60px;
+        }
+
+        .cover-card {
+            margin-top: 200px;
+            /* EVEN MORE SPACE ON COVER FROM BG LOGO */
+        }
+
+        /* ----------------------------------
+           REFINED TYPOGRAPHY & SPACING
+           ---------------------------------- */
+        h1 {
+            font-family: 'Bodoni Moda', serif !important;
+            font-size: 2.8rem !important;
+            /* Slightly smaller for more elegance */
+            font-weight: 500 !important;
+            line-height: 1.1 !important;
+            color: var(--bronze-text) !important;
+            margin: 0 !important;
+            letter-spacing: -0.04em !important;
+            font-style: italic;
+        }
+
+        h1 span.highlight {
+            font-family: 'Lexend', sans-serif !important;
+            font-weight: 800 !important;
+            font-style: normal;
+            font-size: 2.4rem !important;
+            color: var(--gold-deep) !important;
+            display: block;
+            margin-top: 15px;
+            /* MORE SPACE BETWEEN TITLE LINES */
+            letter-spacing: -0.02em;
+        }
+
+        .section-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7em;
+            color: var(--gold-deep);
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 45px;
+            /* MORE SPACE BELOW BADGE */
+            width: 100%;
+        }
+
+        .section-badge::after {
+            content: '';
+            height: 1px;
+            flex-grow: 1;
+            background: var(--divider-line);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            font-weight: 300;
+            line-height: 2.0;
+            color: var(--muted-text);
+            max-width: 820px;
+            margin-top: 50px;
+        }
+
+        .promo-label {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(90deg, rgba(179, 139, 77, 0.08), rgba(212, 175, 55, 0.02));
+            border: 1px solid rgba(179, 139, 77, 0.15);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gold-deep);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer Spacing */
+        .footer-grid {
+            margin-top: auto;
+            padding-top: 60px;
+            /* MORE SPACE FOR FOOTER */
+            display: flex;
+            gap: 130px;
+            /* MORE SPACE BETWEEN FOOTER ITEMS */
+            width: 100%;
+        }
+
+        .footer-item h4 {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--gold-deep);
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            margin-bottom: 18px !important;
+            /* MORE SPACE BELOW LABLES */
+        }
+
+        .footer-item p {
+            font-size: 1.35rem;
+            font-weight: 400;
+            color: var(--bronze-text);
+        }
+
+        /* Balanced Cover Layout */
+        .cover-content-wrap {
+            display: flex;
+            width: 100%;
+            gap: 60px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .cover-info {
+            flex: 1.2;
+        }
+
+        .cover-features {
+            flex: 1;
+            background: rgba(179, 139, 77, 0.04);
+            border-radius: 32px;
+            padding: 45px;
+            border: 1px solid rgba(179, 139, 77, 0.1);
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+            font-size: 1.1rem;
+            color: var(--muted-text);
+        }
+
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-item svg {
+            color: var(--gold-light);
+            flex-shrink: 0;
+        }
+
+        .avatar-group {
+            display: flex;
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .avatar-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gold-light);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-info h4 {
+            font-size: 0.55rem;
+            font-weight: 800;
+            color: var(--gold-deep);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin: 0 0 4px 0 !important;
+        }
+
+        .avatar-info p {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--bronze-text);
+            margin: 0 !important;
+        }
+
+        /* Timeline Layout */
+        .timeline-wrap {
+            width: 100%;
+            position: relative;
+            padding-left: 0;
+        }
+
+        /* The vertical line */
+        .timeline-wrap::before {
+            content: '';
+            position: absolute;
+            left: 110px;
+            /* Center of the 50px gap (85px label + 25px half-gap) */
+            top: 20px;
+            bottom: 20px;
+            width: 2px;
+            background: linear-gradient(to bottom,
+                    var(--gold-deep),
+                    rgba(179, 139, 77, 0.1) 90%);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 50px;
+            padding: 40px 0;
+            /* MORE SPACIOUS */
+            position: relative;
+        }
+
+        /* The dot */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 110px;
+            top: 48px;
+            /* Aligned with h3 baseline */
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 2px solid var(--gold-deep);
+            border-radius: 50%;
+            z-index: 2;
+            transform: translateX(-50%);
+        }
+
+        .timeline-item.active::before {
+            background: var(--gold-deep);
+            box-shadow: 0 0 0 5px rgba(179, 139, 77, 0.15);
+            left: 120px
+        }
+
+        .timeline-session {
+            font-size: 0.70rem;
+            font-weight: 800;
+            color: var(--gold-deep);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            width: 85px;
+            flex-shrink: 0;
+            padding-top: 45px;
+            /* Aligned with dot and h3 */
+            text-align: right;
+        }
+
+        .timeline-info h3 {
+            font-family: 'Lexend', sans-serif !important;
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            margin: 0 0 4px 0 !important;
+            color: var(--bronze-text) !important;
+            line-height: 1.2 !important;
+        }
+
+        .timeline-info p {
+            font-size: 0.9rem;
+            color: var(--gold-deep);
+            font-weight: 500;
+            margin: 0 0 8px 0 !important;
+        }
+
+        .timeline-speaker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(179, 139, 77, 0.05);
+        }
+
+        .speaker-thumb {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--gold-deep);
+        }
+
+        .speaker-details h4 {
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            margin: 0 !important;
+            color: var(--bronze-text) !important;
+        }
+
+        .speaker-details p {
+            font-size: 0.75rem !important;
+            color: var(--muted-text) !important;
+            margin: 2px 0 0 0 !important;
+            font-weight: 400 !important;
+        }
+
+        .timeline-item.active {
+            background: rgba(179, 139, 77, 0.04);
+            margin: 0 -20px 0 -10px;
+            padding: 40px 30px 40px 20px;
+            border-radius: 16px;
+        }
+
+        /* Voucher Component */
+        .voucher-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .voucher-card {
+            background: linear-gradient(135deg, #2D241E 0%, #4A3728 100%);
+            display: flex;
+            width: 100%;
+            max-width: 680px;
+            height: 260px;
+            border-radius: 20px;
+            position: relative;
+            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.25));
+            overflow: hidden;
+            border: 1px solid rgba(179, 139, 77, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        /* Removed Shimmer lines */
+        .voucher-card::after {
+            display: none;
+        }
+
+        .voucher-card:hover {
+            transform: translateY(-12px) rotate(1deg);
+            filter: drop-shadow(0 45px 90px rgba(0, 0, 0, 0.4));
+            border-color: rgba(212, 175, 55, 0.8);
+        }
+
+        /* Circular Cutouts (The "Bongkahan") */
+        .voucher-card::before,
+        .voucher-card::after {
+            display: block !important;
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #fbf8f3;
+            /* Matches slide background */
+            width: 36px;
+            height: 36px;
+            background: #fbf8f3;
+            border-radius: 50%;
+            z-index: 20;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .voucher-card::before {
+            left: -18px;
+        }
+
+        .voucher-card::after {
+            right: -18px;
+        }
+
+        .v-left {
+            flex: 1.3;
+            padding: 40px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 3px dashed rgba(179, 139, 77, 0.3);
+            position: relative;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 86c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm66 3c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-46-43c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm58 18c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zM94 56c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zM26 13c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zM5 67c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z' fill='%23b38b4d' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .v-right {
+            flex: 1;
+            padding: 40px;
+            background: rgba(179, 139, 77, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .v-right::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+        }
+
+        .v-label {
+            color: var(--gold-light);
+            font-weight: 800;
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .v-title {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .v-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+        }
+
+        .v-price-old {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: line-through;
+            font-weight: 400;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .v-price-new {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--gold-light);
+            line-height: 1;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .v-percent {
+            background: var(--gold-deep);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(179, 139, 77, 0.3);
+            transform: rotate(-2deg);
+        }
+
+        /* Blue Voucher Variant - Enhanced */
+        .voucher-card.v-blue {
+            background: linear-gradient(135deg, #001a4d 0%, #0046ad 50%, #0076ff 100%);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(0, 118, 255, 0.2);
+        }
+
+        .v-blue::before,
+        .v-blue::after {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .v-blue .v-left {
+            border-right: 3px dashed rgba(255, 255, 255, 0.3);
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 40%);
+        }
+
+        .v-blue .v-right {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .v-blue .v-right::before {
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+        }
+
+        .v-blue .v-label,
+        .v-blue .v-price-new {
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .v-blue .v-percent {
+            background: #fff;
+            color: #0046ad;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+            font-weight: 900;
+        }
+
+        .v-blue:hover {
+            border-color: #fff;
+            filter: drop-shadow(0 40px 80px rgba(0, 118, 255, 0.4));
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+        }
+
+        .v-blue::after {
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.1) 40%,
+                    rgba(255, 255, 255, 0.6) 50%,
+                    rgba(255, 255, 255, 0.1) 60%,
+                    transparent);
+        }
+
+        /* Sparkle effect on blue voucher */
+        .v-blue .v-left::after {
+            content: '✦';
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.5rem;
+            animation: sparklePulse 2s infinite alternate;
+        }
+
+        @keyframes sparklePulse {
+            from {
+                opacity: 0.2;
+                transform: scale(0.8) rotate(0deg);
+            }
+
+            to {
+                opacity: 0.8;
+                transform: scale(1.2) rotate(45deg);
+            }
+        }
+
+        @keyframes textShimmer {
+            from {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+                transform: scale(1);
+            }
+
+            to {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 50px rgba(255, 255, 255, 0.4);
+                transform: scale(1.05);
+            }
+        }
+
+        .v-terms {
+            position: absolute;
+            bottom: 30px;
+            left: 60px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        /* Next Session Card */
+        .next-session-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 40px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .next-date-box {
+            background: var(--gold-deep);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .next-month {
+            display: block;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            margin-bottom: 5px;
+        }
+
+        .next-day {
+            display: block;
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .next-details h3 {
+            font-family: 'Lexend', sans-serif !important;
+            font-size: 1.8rem !important;
+            color: var(--bronze-text) !important;
+            margin-bottom: 15px !important;
+            line-height: 1.3 !important;
+        }
+
+        .next-tag {
+            display: inline-block;
+            background: rgba(179, 139, 77, 0.1);
+            color: var(--gold-deep);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .qr-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .qr-card img {
+            width: 200px;
+            height: 200px;
+            display: block;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--gold-deep);
+            color: white !important;
+            padding: 15px 40px;
+            border-radius: 100px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(179, 139, 77, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(179, 139, 77, 0.3);
+        }
+
+        .speaker-small-thumb {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--gold-deep);
+            margin-bottom: 10px;
+        }
+
+        /* ----------------------------------
+           COMPONENT SPACING
+           ---------------------------------- */
+        .list-wrap {
+            width: 100%;
+        }
+
+        .list-row {
+            display: flex;
+            align-items: center;
+            gap: 45px;
+            padding: 30px 0;
+            /* MORE BREATHING ROOM IN LISTS */
+            border-bottom: 1px solid var(--divider-line);
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: #FDF9F4;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--divider-line);
+            flex-shrink: 0;
+        }
+
+        .list-text {
+            font-size: 1.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .list-idx {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--gold-light);
+            width: 80px;
+        }
+
+        /* Speaker Layout Space */
+        .speaker-row {
+            display: flex;
+            gap: 100px;
+            /* EVEN MORE SPACE BETWEEN PIC AND TEXT */
+            align-items: center;
+        }
+
+        .speaker-img {
+            width: 230px;
+            height: 320px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 8px solid white;
+            box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Sosmed Layout Space */
+        .tag-row {
+            margin-top: 45px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tag-item {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold-deep);
+            font-family: 'Bodoni Moda', serif !important;
+        }
+
+        .mention-row {
+            margin-top: 55px;
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Reveal Controls */
+        .reveal .controls {
+            color: var(--gold-deep);
+            opacity: 0.2 !important;
+        }
+
+        .reveal .progress {
+            height: 2px;
+            background: rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: Welcome -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG-01.jpg">
+                <div class="content-card cover-card">
+
+
+                    <div class="promo-label">
+                        From Zero to AI-Ready: 3 Days Intensive Tech Series
+                    </div>
+
+                    <h1>Getting Started as an AI Engineer:<br><span class="highlight">Career Paths, Portfolios, and
+                            Interviews</span></h1>
+
+                    <p
+                        style="font-size: 1.05rem; color: var(--muted-text); margin-top: 20px; font-weight: 300; max-width: 700px;line-height: 1.5rem;">
+                        A practical roadmap for students and professionals to transition into high-impact AI engineering
+                        roles.
+                    </p>
+
+                    <div class="avatar-group" style="margin-top: 50px;">
+                        <div class="avatar-item">
+                            <img src="assets/Syukron-2.jpeg" class="avatar-circle" alt="Speaker">
+                            <div class="avatar-info">
+                                <h4>Speaker</h4>
+                                <p>Muhamad Syukron</p>
+                            </div>
+                        </div>
+                        <div class="avatar-item">
+                            <img src="assets/Mareta.jpg" class="avatar-circle" alt="Moderator">
+                            <div class="avatar-info">
+                                <h4>Moderator</h4>
+                                <p>Mareta</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: Series Overview -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card">
+                    <div class="section-badge">Overview Series</div>
+
+                    <div class="timeline-wrap">
+                        <div class="timeline-item active">
+                            <div class="timeline-session">Session 01</div>
+                            <div class="timeline-info">
+                                <h3>Getting Started as an AI Engineer</h3>
+                                <p>Saturday, 28 Feb</p>
+                                <div class="timeline-speaker">
+                                    <img src="assets/Syukron-2.jpeg" class="speaker-thumb" alt="Syukron">
+                                    <div class="speaker-details">
+                                        <h4>Muhamad Syukron</h4>
+                                        <p>Statistics & Data Science Lecturer at ITS</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-session">Session 02</div>
+                            <div class="timeline-info">
+                                <h3>Practical AI Automation for Real-World Workflows</h3>
+                                <p>Saturday, 07 March</p>
+                                <div class="timeline-speaker">
+                                    <img src="assets/Hamzah.jpg" class="speaker-thumb" alt="Hamzah">
+                                    <div class="speaker-details">
+                                        <h4>Hamzah Arman Husni</h4>
+                                        <p>Data Scientist | AI and Automation Teacher</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-session">Session 03</div>
+                            <div class="timeline-info">
+                                <h3>Vibe Coding: From Zero to End-to-End Full-Stack Application with AI</h3>
+                                <p>Saturday, 14 March</p>
+                                <div class="timeline-speaker">
+                                    <img src="assets/Mareta.jpg" class="speaker-thumb" alt="Mareta">
+                                    <div class="speaker-details">
+                                        <h4>Mareta Ayu Handanari</h4>
+                                        <p>Software Engineer</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: Rules -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card">
+                    <div class="section-badge">House Rules</div>
+                    <h1
+                        style="font-style: normal !important; font-size: 3.2rem !important; margin-bottom: 30px !important;">
+                        House Rules</h1>
+                    <div class="list-wrap">
+                        <div class="list-row">
+                            <div class="icon-box">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-deep)"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+                                    <path d="M19 10v1a7 7 0 0 1-14 0v-1" />
+                                    <line x1="12" y1="19" x2="12" y2="22" />
+                                    <line x1="8" y1="22" x2="16" y2="22" />
+                                    <line x1="2" y1="2" x2="22" y2="22" opacity="0.6" />
+                                </svg>
+                            </div>
+                            <span class="list-text">Please maintain a conducive environment during the session</span>
+                        </div>
+                        <div class="list-row">
+                            <div class="icon-box">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-deep)"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                </svg>
+                            </div>
+                            <span class="list-text">Complete the survey at the end for certificates &
+                                scholarships</span>
+                        </div>
+                        <div class="list-row">
+                            <div class="icon-box">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-deep)"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                    <line x1="8" y1="21" x2="16" y2="21" />
+                                    <line x1="12" y1="17" x2="12" y2="21" />
+                                </svg>
+                            </div>
+                            <span class="list-text">Materials and session recordings will be shared</span>
+                        </div>
+                        <div class="list-row" style="border-bottom: none;">
+                            <div class="icon-box">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-deep)"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                            </div>
+                            <span class="list-text">Have questions? Submit them via <a
+                                    href="https://app.sli.do/event/rHRTXuFUrAiHScutmPcmgz/live/questions"
+                                    target="_blank"
+                                    style="color: var(--gold-deep); text-decoration: underline; font-weight: 600;">Slido</a></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: Agenda -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card">
+                    <div class="section-badge">Agenda</div>
+                    <h1
+                        style="font-style: normal !important; font-size: 3.2rem !important; margin-bottom: 30px !important;">
+                        Agenda</h1>
+                    <div class="list-wrap">
+                        <div class="list-row">
+                            <span class="list-idx">01.</span>
+                            <span class="list-text">Main Material Presentation</span>
+                        </div>
+                        <div class="list-row">
+                            <span class="list-idx">02.</span>
+                            <span class="list-text">Inside Ruangguru Engineering Academy</span>
+                        </div>
+                        <div class="list-row">
+                            <span class="list-idx">03.</span>
+                            <span class="list-text">Q&A Session</span>
+                        </div>
+                        <div class="list-row" style="border-bottom: none;">
+                            <span class="list-idx">04.</span>
+                            <span class="list-text">Final Quiz</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Sosmed -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card">
+                    <div class="section-badge">Social Media</div>
+                    <h1 style="font-style: normal !important; font-size: 3.2rem !important;">Share the Session</h1>
+                    <p class="tagline" style="border: none; padding: 0; margin-top: 20px;">Use the official hashtags and
+                        tag us on your social media.</p>
+                    <div class="tag-row">
+                        <span class="tag-item">#KodingKurma</span>
+                        <span class="tag-item">#AIForEveryone</span>
+                    </div>
+                    <div class="mention-row">
+                        <span class="mention-pill"
+                            style="background: var(--bronze-text); color: white; padding: 12px 28px; border-radius: 6px; font-weight: 600;">@skillacademy.id</span>
+                        <span class="mention-pill"
+                            style="background: var(--bronze-text); color: white; padding: 12px 28px; border-radius: 6px; font-weight: 600;">@belajarcodingai</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Speaker -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="justify-content: center;">
+                    <div class="section-badge">Speaker Profile</div>
+                    <div class="speaker-row">
+                        <img src="assets/Syukron-2.jpeg" class="speaker-img" alt="Muhamad Syukron">
+                        <div>
+                            <h1
+                                style="font-style: normal !important; font-size: 3.2rem !important; line-height: 1.1 !important; white-space: nowrap;">
+                                Muhamad Syukron</h1>
+                            <h2
+                                style="font-size: 1.4rem !important; margin-top: 10px !important; color: var(--gold-deep); font-weight: 600;">
+                                Statistics and Data Science Lecturer at ITS</h2>
+
+                            <div style="margin-top: 30px; text-align: left;">
+                                <p
+                                    style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bronze-text); font-weight: 700; margin-bottom: 15px;">
+                                    Experience & Background</p>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    <li
+                                        style="font-size: 1.1rem; color: var(--muted-text); margin-bottom: 12px; display: flex; align-items: flex-start; gap: 12px;">
+                                        <span style="color: var(--gold-deep); font-weight: bold;">•</span>
+                                        5+ years of work experience as a Data Scientist and AI Engineer
+                                    </li>
+                                    <li
+                                        style="font-size: 1.1rem; color: var(--muted-text); display: flex; align-items: flex-start; gap: 12px;">
+                                        <span style="color: var(--gold-deep); font-weight: bold;">•</span>
+                                        Master of Artificial Intelligence, Monash University Australia
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Transition -->
+            <section data-transition="fade" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="align-items: center; text-align: center;">
+                    <div class="section-badge" style="justify-content: center;">Introduction</div>
+                    <h1
+                        style="font-size: 6rem !important; margin: 0 !important; text-align: center !important; font-style: normal !important;">
+                        Ready to<br>start?</h1>
+                    <div style="margin-top: 50px; height: 1.5px; width: 100px; background: var(--gold-deep);"></div>
+                    <p
+                        style="font-size: 1.1rem; color: var(--muted-text); margin-top: 25px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;">
+                        Prepare your notes and coffee</p>
+                </div>
+            </section>
+
+            <!-- Slide 7: THR Voucher -->
+            <section data-transition="zoom" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="justify-content: center; align-items: center; text-align: center;">
+                    <div class="section-badge" style="justify-content: center;">Special Offer</div>
+                    <h1 style="font-size: 3.5rem !important; margin-bottom: 10px !important;">THR Buat Kamu! 🌙</h1>
+                    <p class="tagline" style="border: none; padding: 0; max-width: 800px; line-height: 1.6;">Khusus
+                        untuk peserta webinar hari ini! ✨<br>
+                        Yuk, upgrade skill kamu dan mulai karir di bidang AI sekarang!</p>
+
+                    <div class="voucher-container">
+                        <div class="voucher-card">
+                            <div class="v-left">
+                                <span class="v-label">Bootcamp Voucher</span>
+                                <h2 class="v-title">AI Engineering<br>Batch 11</h2>
+                                <p class="v-desc">Transform your career with REA</p>
+                                <span class="v-terms">Valid only during this webinar series</span>
+                            </div>
+                            <div class="v-right">
+                                <span class="v-price-old">IDR 5,000,000</span>
+                                <span class="v-price-new">3.25jt</span>
+                                <div class="v-percent">Hemat 35%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Slide 8: Presence & Feedback -->
+            <section data-transition="convex" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="justify-content: center; align-items: center; text-align: center;">
+                    <div class="section-badge" style="justify-content: center;">Presence & Feedback</div>
+                    <h1 style="font-size: 3.5rem !important; margin-bottom: 20px !important;">Dapatkan THR
+                        Extra<br>khusus buat kamu! </h1>
+
+                    <div
+                        style="display: flex; align-items: stretch; gap: 50px; margin-top: 40px; max-width: 1200px; width: 100%;">
+                        <!-- Left: Tasks -->
+                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                            <div
+                                style="background: rgba(179, 139, 77, 0.05); padding: 35px; border-radius: 25px; border: 1px dashed var(--gold-deep); text-align: left;">
+                                <div style="display: flex; flex-direction: column; gap: 20px;">
+                                    <div style="display: flex; align-items: center; gap: 20px;">
+                                        <div
+                                            style="background: var(--gold-deep); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; font-size: 0.9rem;">
+                                            1</div>
+                                        <p
+                                            style="font-size: 1.1rem; margin: 0; color: var(--bronze-text); font-weight: 500;">
+                                            Submit form presensi dan feedback sesi hari ini</p>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 20px;">
+                                        <div
+                                            style="background: var(--gold-deep); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; font-size: 0.9rem;">
+                                            2</div>
+                                        <p
+                                            style="font-size: 1.1rem; margin: 0; color: var(--bronze-text); font-weight: 500;">
+                                            Upload keseruan belajar kamu di Instagram Story</p>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 20px;">
+                                        <div
+                                            style="background: var(--gold-deep); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; font-size: 0.9rem;">
+                                            3</div>
+                                        <p
+                                            style="font-size: 1.1rem; margin: 0; color: var(--bronze-text); font-weight: 500;">
+                                            Ikuti Quiz di akhir sesi untuk berkesempatan mendapatkan THR Course Skill
+                                            Academy</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 25px; text-align: left;">
+                                <a href="https://forms.gle/1M7m721P9A5aCFfU6" class="cta-button"
+                                    style="margin-top: 0; width: 100%; text-align: center; box-sizing: border-box;">Isi
+                                    Presensi & Feedback</a>
+                            </div>
+                        </div>
+
+                        <!-- Right: Voucher -->
+                        <div style="flex: 1.2; display: flex; align-items: center; justify-content: center;">
+                            <div class="voucher-container" style="margin-top: 0; transform: scale(0.95);">
+                                <div class="voucher-card v-blue"
+                                    style="box-shadow: 0 15px 45px rgba(0,0,0,0.2); max-width: 750px; height: 280px;">
+                                    <div class="v-left" style="padding: 30px 40px;">
+                                        <span class="v-label" style="font-size: 0.7rem;">Extra THR Reward</span>
+                                        <h2 class="v-title" style="font-size: 1.6rem;">Skill Academy<br>Free Course</h2>
+                                        <p class="v-desc" style="font-size: 0.85rem;">Selesaikan misi & klaim kado kamu!
+                                        </p>
+                                        <span class="v-terms"
+                                            style="font-size: 0.75rem; bottom: 20px; left: 40px;">Khusus peserta aktif
+                                            hari ini</span>
+                                    </div>
+                                    <div class="v-right">
+                                        <div class="v-price-old" style="visibility: hidden;">IDR 0</div>
+                                        <span class="v-price-new"
+                                            style="font-size: 2.8rem; animation: textShimmer 2s infinite alternate;">FREE</span>
+                                        <div class="v-percent" style="font-size: 0.9rem; padding: 6px 14px;">Hemat 100%
+                                        </div>
+                                    </div>
+                                    <!-- Sparkle Element -->
+                                    <div
+                                        style="position: absolute; top: 15%; right: 10%; font-size: 1.5rem; color: rgba(255,255,255,0.6); pointer-events: none; animation: sparklePulse 3s infinite;">
+                                        ✦</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide: Quiz -->
+            <section data-transition="zoom" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="justify-content: center; align-items: center; text-align: center;">
+                    <div class="section-badge" style="justify-content: center;">Final Quiz</div>
+                    <h1 style="font-size: 4.5rem !important; margin-bottom: 20px !important;">Waktunya Quiz!</h1>
+                    <p class="tagline"
+                        style="border: none; padding: 0; max-width: 800px; line-height: 1.6; margin-top: 0;">
+                        Tunjukkan pemahamanmu dan raih kesempatan memenangkan <b>THR Course Skill Academy!</b>✨
+                    </p>
+
+                    <div style="margin-top: 50px;">
+                        <a href="https://wayground.com/admin/quiz/69a28f9b6afadb1efa2cef37" target="_blank"
+                            class="cta-button"
+                            style="font-size: 1.8rem; padding: 25px 80px; box-shadow: 0 20px 40px rgba(179, 139, 77, 0.3);">
+                            Mulai Quiz Sekarang
+                        </a>
+                    </div>
+
+                    <div style="margin-top: 40px; color: var(--gold-deep); font-weight: 500; font-size: 1.1rem;">
+                        Atau akses via: <span style="text-decoration: underline;">wayground.com</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Next Session Reminder -->
+            <section data-transition="slide-in fade-out" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="justify-content: center; align-items: center; text-align: center;">
+                    <div class="section-badge" style="justify-content: center;">Save the Date</div>
+                    <h1 style="font-size: 3.5rem !important; margin-bottom: 10px !important;">Don't Miss Out!</h1>
+
+                    <div class="next-session-card">
+                        <div class="next-date-box">
+                            <span class="next-month">MARCH</span>
+                            <span class="next-day">07</span>
+                        </div>
+                        <div class="next-details">
+                            <div class="next-tag" style="margin-bottom: 15px;">Day 2: AI Automation</div>
+                            <h3>Practical AI Automation for<br>Real-World Workflows</h3>
+
+                            <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px;">
+                                <img src="assets/Hamzah.jpg"
+                                    style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-deep);"
+                                    alt="Hamzah">
+                                <div style="text-align: left;">
+                                    <div style="font-weight: 800; color: var(--bronze-text); font-size: 1.1rem;">Hamzah
+                                        Arman Husni</div>
+                                    <div style="font-size: 0.85rem; color: var(--muted-text);">Data Scientist | AI
+                                        Teacher</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 40px; color: var(--gold-deep); font-weight: 700; font-size: 1.2rem;">
+                        Daftar di sini: <a href="https://bit.ly/wkk_rea"
+                            style="color: var(--gold-deep); text-decoration: underline;">bit.ly/wkk_rea</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Community QR -->
+            <section data-transition="zoom" data-background-image="assets/Virtual BG_Tanpa Logo-01.jpg">
+                <div class="content-card" style="justify-content: center; align-items: center; text-align: center;">
+                    <div class="section-badge" style="justify-content: center;">Community</div>
+                    <h1 style="font-size: 3.5rem !important; margin-bottom: 15px !important;">Join REA Community</h1>
+
+                    <div class="qr-card">
+                        <img src="assets/qr-code.png" alt="REA Community QR Code">
+                    </div>
+
+                    <div style="margin-top: 25px; color: var(--gold-deep); font-weight: 700; font-size: 1.1rem;">
+                        Scan QR Code di atas via WhatsApp
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            center: false,
+            transition: 'fade',
+            backgroundTransition: 'fade',
+            width: 1920,
+            height: 1080,
+            margin: 0,
+            minScale: 1,
+            maxScale: 1,
+            display: 'flex'
+        });
+    </script>
+</body>
+
+</html>
