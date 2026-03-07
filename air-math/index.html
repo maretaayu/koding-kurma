@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Math — Draw with your fingers!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;800&display=swap" rel="stylesheet">
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Tesseract (OCR) -->
+    <!-- Tesseract is large, might take a few seconds to load -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --------------------------
+           MAIN LAYOUT
+           -------------------------- */
+        .wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Container where video & drawing live */
+        .camera-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #video {
+            display: none;
+        }
+
+        /* Used as source, not displayed directly */
+
+        #output {
+            position: absolute;
+            transform: scaleX(-1);
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* The canvas where lines are permanently drawn */
+        #drawing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            transform: scaleX(-1);
+            /* mirror */
+            pointer-events: none;
+        }
+
+        /* --------------------------
+           UI OVERLAY
+           -------------------------- */
+        .overlay-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            /* Let clicks pass to canvas if needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo span {
+            color: #facc15;
+        }
+
+        /* Instructions Panel */
+        .instructions {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #facc15;
+        }
+
+        .instructions ul {
+            list-style: none;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            display: flex;
+            gap: 10px;
+        }
+
+        .instructions li span {
+            font-size: 1.2rem;
+        }
+
+        /* Loader */
+        .loader {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #facc15;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Actions Bottom */
+        .actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            /* Buttons are clickable */
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 100px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: #facc15;
+            color: #000;
+            border: none;
+            box-shadow: 0 10px 30px rgba(250, 204, 21, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #fde047;
+            box-shadow: 0 15px 40px rgba(250, 204, 21, 0.4);
+        }
+
+        /* Result Panel */
+        .result-panel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(250, 204, 21, 0.5);
+            border-radius: 20px;
+            padding: 20px 40px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            min-width: 300px;
+            pointer-events: none;
+        }
+
+        .result-panel.show {
+            opacity: 1;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: #facc15;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+        }
+
+        .result-text {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .result-calc {
+            font-size: 1.5rem;
+            color: #4ade80;
+        }
+
+        .pointer-ring {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #facc15;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <h2 id="loader-status">Waking up AI...</h2>
+        <p style="color:#aaa; font-weight: 400;">Ensure you allow camera access</p>
+    </div>
+
+    <!-- Hidden video feed -->
+    <video id="video" autoplay playsinline></video>
+
+    <div class="camera-container">
+        <!-- Rendered video with skeleton -->
+        <canvas id="output"></canvas>
+        <!-- Transparent canvas for drawings -->
+        <canvas id="drawing"></canvas>
+    </div>
+
+    <!-- UI Overlay (Fixed on screen) -->
+    <div class="overlay-ui">
+        <div class="top-bar">
+            <div class="logo">Air<span>Math</span> ✍️</div>
+            <div class="instructions">
+                <h3>Gestures</h3>
+                <ul>
+                    <li><span>☝️</span> 1 Finger = Draw</li>
+                    <li><span>✌️</span> 2 Fingers = Hover / Move</li>
+                    <li><span>🖐️</span> 5 Fingers = Clear Canvas</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Result Box -->
+        <div class="result-panel" id="result-panel">
+            <div class="result-label">AI Detected</div>
+            <div class="result-text" id="result-text">--</div>
+            <div class="result-calc" id="result-calc"></div>
+        </div>
+
+        <div class="actions">
+            <!-- Solve button removed, it auto-solves! -->
+            <button class="btn" id="btn-clear">🗑️ Clear Canvas</button>
+        </div>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('video');
+        const canvasOutput = document.getElementById('output');
+        const ctxOutput = canvasOutput.getContext('2d');
+        const canvasDraw = document.getElementById('drawing');
+        const ctxDraw = canvasDraw.getContext('2d', { willReadFrequently: true });
+
+        let lastX = null, lastY = null;
+        let isDrawing = false;
+        let isHovering = false;
+        let pWidth = 0, pHeight = 0;
+
+        // Auto-solve state
+        let autoSolveTimer = null;
+        let hasNewStrokes = false;
+        let isSolving = false;
+
+        // Settings
+        const DRAW_COLOR = "#facc15";
+        const DRAW_WIDTH = 10;
+
+        // Scale canvas to fit screen
+        function resize() {
+            pWidth = window.innerWidth;
+            pHeight = window.innerHeight;
+            canvasOutput.width = pWidth; canvasOutput.height = pHeight;
+            canvasDraw.width = pWidth; canvasDraw.height = pHeight;
+            // Clear on resize (transparent so video is visible)
+            ctxDraw.clearRect(0, 0, pWidth, pHeight);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // AI Engine
+        const hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }
+        });
+        hands.setOptions({
+            maxNumHands: 1, modelComplexity: 1,
+            minDetectionConfidence: 0.7, minTrackingConfidence: 0.7
+        });
+
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => { await hands.send({ image: videoElement }); },
+            width: 1280, height: 720
+        });
+
+        // Tesseract init
+        let ocrReady = false;
+        (async () => {
+            try {
+                document.getElementById('loader-status').innerText = 'Loading Hand Tracker...';
+                await camera.start();
+
+                document.getElementById('loader-status').innerText = 'Downloading OCR Engine...';
+                // Pre-warm Tesseract
+                await Tesseract.recognize(canvasDraw, 'eng', { logger: m => console.log(m) });
+                ocrReady = true;
+
+                document.getElementById('loader').style.display = 'none';
+            } catch (err) {
+                document.getElementById('loader-status').innerText = 'Error: ' + err.message;
+            }
+        })();
+
+        // Hand landmark definitions
+        function isFingerUp(landmarks, tipIndex, pipIndex) {
+            return landmarks[tipIndex].y < landmarks[pipIndex].y;
+        }
+
+        function isThumbUp(landmarks) {
+            const isLeftHand = landmarks[4].x < landmarks[17].x;
+            if (isLeftHand) {
+                return landmarks[4].x < landmarks[3].x;
+            } else {
+                return landmarks[4].x > landmarks[3].x;
+            }
+        }
+
+        function onResults(results) {
+            // Draw video feed and hand skeleton
+            ctxOutput.save();
+            ctxOutput.clearRect(0, 0, pWidth, pHeight);
+            ctxOutput.drawImage(results.image, 0, 0, pWidth, pHeight);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+
+                drawConnectors(ctxOutput, landmarks, HAND_CONNECTIONS, { color: '#fde047', lineWidth: 2 });
+                drawLandmarks(ctxOutput, landmarks, { color: '#fff', lineWidth: 1, radius: 3 });
+
+                // Detect gestures
+                const thumbUp = isThumbUp(landmarks);
+                const indexUp = isFingerUp(landmarks, 8, 6);
+                const middleUp = isFingerUp(landmarks, 12, 10);
+                const ringUp = isFingerUp(landmarks, 16, 14);
+                const pinkyUp = isFingerUp(landmarks, 20, 18);
+
+                const x = landmarks[8].x * pWidth;
+                const y = landmarks[8].y * pHeight;
+
+                let activeAction = false;
+
+                // 🖐️ Open Hand (Wave) = Clear
+                if (indexUp && middleUp && ringUp && pinkyUp) {
+                    clearCanvas();
+                    isDrawing = false;
+                    lastX = null; lastY = null;
+                    activeAction = true;
+                }
+                // ✌️ Hover = 2 Fingers Up
+                else if (indexUp && middleUp && !ringUp && !pinkyUp) {
+                    isDrawing = false;
+                    isHovering = true;
+                    lastX = null; lastY = null;
+                    activeAction = true;
+                    // Draw a hover ring on output canvas
+                    ctxOutput.beginPath();
+                    ctxOutput.arc(x, y, 15, 0, 2 * Math.PI);
+                    ctxOutput.fillStyle = 'rgba(250,204,21,0.5)';
+                    ctxOutput.fill();
+                }
+                // ☝️ Draw = 1 Finger Up
+                else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
+                    isHovering = false;
+                    activeAction = true;
+                    hasNewStrokes = true;
+
+                    if (!isDrawing) {
+                        isDrawing = true;
+                        lastX = x; lastY = y;
+                    }
+
+                    // Stroke on Draw Canvas
+                    ctxDraw.beginPath();
+                    ctxDraw.moveTo(lastX, lastY);
+                    ctxDraw.lineTo(x, y);
+                    ctxDraw.strokeStyle = "#ffffff";
+                    ctxDraw.lineWidth = DRAW_WIDTH;
+                    ctxDraw.lineCap = "round";
+                    ctxDraw.stroke();
+
+                    lastX = x; lastY = y;
+
+                    // Fancy glow on video output
+                    ctxOutput.beginPath();
+                    ctxOutput.arc(x, y, 10, 0, 2 * Math.PI);
+                    ctxOutput.fillStyle = '#fff';
+                    ctxOutput.shadowColor = DRAW_COLOR;
+                    ctxOutput.shadowBlur = 15;
+                    ctxOutput.fill();
+                    ctxOutput.shadowBlur = 0;
+                } else {
+                    isDrawing = false;
+                    lastX = null; lastY = null;
+                }
+
+                // If the user is actively drawing or hovering, cancel the auto-solve timer
+                if (activeAction) {
+                    clearTimeout(autoSolveTimer);
+                    autoSolveTimer = null;
+                }
+                // If they put their hand in a resting state while having strokes, start counting down to solve
+                else if (hasNewStrokes && !isSolving && !autoSolveTimer) {
+                    autoSolveTimer = setTimeout(triggerSolve, 1000);
+                }
+            } else {
+                isDrawing = false;
+                lastX = null; lastY = null;
+
+                // If no hands detected but we have strokes, auto-solve quickly
+                if (hasNewStrokes && !isSolving && !autoSolveTimer) {
+                    autoSolveTimer = setTimeout(triggerSolve, 800);
+                }
+            }
+            ctxOutput.restore();
+        }
+
+        // Action Buttons
+        document.getElementById('btn-clear').addEventListener('click', clearCanvas);
+
+        const resultPanel = document.getElementById('result-panel');
+        const resultText = document.getElementById('result-text');
+        const resultCalc = document.getElementById('result-calc');
+
+        async function triggerSolve() {
+            if (!ocrReady || isSolving || !hasNewStrokes) return;
+            isSolving = true;
+            hasNewStrokes = false;
+
+            resultPanel.classList.add('show');
+            resultText.innerText = "Analyzing...";
+            resultCalc.innerText = "";
+
+            try {
+                // Tesseract expects black text on white background ideally
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = pWidth; tempCanvas.height = pHeight;
+                const tx = tempCanvas.getContext('2d');
+                tx.fillStyle = 'white'; tx.fillRect(0, 0, pWidth, pHeight);
+                tx.globalCompositeOperation = 'difference';
+                tx.drawImage(canvasDraw, 0, 0); // Inverts: black drawing on white bg
+
+                // Un-mirror horizontally before OCR
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = pWidth; finalCanvas.height = pHeight;
+                const fx = finalCanvas.getContext('2d');
+                fx.translate(pWidth, 0);
+                fx.scale(-1, 1);
+                fx.drawImage(tempCanvas, 0, 0);
+
+                const { data: { text } } = await Tesseract.recognize(finalCanvas, 'eng');
+
+                const cleanedText = text.replace(/[^0-9+\-*/=().xX]/g, '').trim();
+
+                if (!cleanedText) {
+                    resultText.innerText = "Nothing detected";
+                } else {
+                    let expression = cleanedText.replace(/[=]/g, '').replace(/[xX]/g, '*');
+                    let answer = "?";
+                    try {
+                        answer = eval(expression);
+                    } catch (e) { answer = "Invalid Equation"; }
+
+                    resultText.innerText = cleanedText;
+                    if (answer !== "Invalid Equation" && !isNaN(answer)) {
+                        resultCalc.innerText = "= " + answer;
+                    } else {
+                        resultCalc.innerText = "Couldn't solve";
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                resultText.innerText = "Error scanning";
+            }
+
+            isSolving = false;
+
+            // Auto hide panel after a few seconds, unless they started drawing again
+            setTimeout(() => {
+                if (!hasNewStrokes) resultPanel.classList.remove('show');
+            }, 5000);
+        }
+
+        function clearCanvas() {
+            ctxDraw.clearRect(0, 0, pWidth, pHeight);
+            hasNewStrokes = false;
+            clearTimeout(autoSolveTimer);
+            autoSolveTimer = null;
+            resultPanel.classList.remove('show');
+        }
+
+    </script>
+</body>
+
+</html>
