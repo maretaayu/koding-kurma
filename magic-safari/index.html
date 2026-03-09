@@ -154,9 +154,10 @@
 
     <!-- A-Frame Scene -->
     <a-scene vr-mode-ui="enabled: false" background="color: #87ceeb">
-        <!-- Safari Ground -->
-        <a-plane position="0 0 0" rotation="-90 0 0" width="2000" height="2000" color="#7CFC00"></a-plane>
-        <a-sky color="#87ceeb"></a-sky>
+        <!-- Safari Ground & Sky -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="2000" height="2000" color="#4CAF50"
+            material="opacity: 0.8; transparent: true"></a-plane>
+        <a-sky src="../assets/safari_bg.png" rotation="0 -90 0"></a-sky>
 
         <!-- Dynamic elements host -->
         <a-entity id="forest"></a-entity>
@@ -189,31 +190,26 @@
     </a-scene>
 
     <script>
-        // 1. Validating Speech API
-        let synth = window.speechSynthesis;
-        function speak(text) {
-            if (!synth) return;
-            if (synth.speaking) synth.cancel(); // Stop playing current sound
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'id-ID';
-            utterance.rate = 0.9;
-            utterance.pitch = 1.3; // Cute voice
-            synth.speak(utterance);
+        // 1. Audio System
+        function playSound(audioSrc) {
+            const audio = new Audio(audioSrc);
+            audio.volume = 1.0;
+            audio.play().catch(e => console.log('Audio play failed', e));
         }
 
         // 2. High Quality Emoji Texture Generator (REMOVED - we now use real images)
         // function createEmojiTexture(emoji) { ... }
 
         // 3. Animal Dictionary with Indonesian Sounds
-        // 3. Animal Dictionary with Indonesian Sounds & Real Images
+        // 3. Animal Dictionary with Real Sounds & Real Images
         const animalData = [
-            { id: 'elephant', img: '../assets/animals/elephant.png', name: 'Gajah', sound: 'Preeett! Aku gajah, hidungku belalai panjang!' },
-            { id: 'lion', img: '../assets/animals/lion.png', name: 'Singa', sound: 'Roaarr! Aku singa, si raja hutan pemberani!' },
-            { id: 'monkey', img: '../assets/animals/monkey.png', name: 'Monyet', sound: 'Uki uki aa! Aku monyet, suka makan pisang!' },
-            { id: 'giraffe', img: '../assets/animals/giraffe.png', name: 'Jerapah', sound: 'Nyam nyam! Aku jerapah, leherku paling tinggi di hutan!' },
-            { id: 'cow', img: '../assets/animals/cow.png', name: 'Sapi', sound: 'Mooooo! Aku sapi lucu penghasil susu!' },
-            { id: 'zebra', img: '../assets/animals/zebra.png', name: 'Zebra', sound: 'Halo teman! Aku si kuda belang, jebra!' },
-            { id: 'tiger', img: '../assets/animals/tiger.png', name: 'Harimau', sound: 'Rawrrr! Harimau gagah sedang lewat!' }
+            { id: 'elephant', img: '../assets/animals/elephant.png', sound: '../assets/animals/elephant.wav' },
+            { id: 'lion', img: '../assets/animals/lion.png', sound: '../assets/animals/lion.wav' },
+            { id: 'monkey', img: '../assets/animals/monkey.png', sound: '../assets/animals/monkey.wav' },
+            { id: 'giraffe', img: '../assets/animals/giraffe.png', sound: '../assets/animals/giraffe.wav' },
+            { id: 'cow', img: '../assets/animals/cow.png', sound: '../assets/animals/cow.mp3' },
+            { id: 'zebra', img: '../assets/animals/zebra.png', sound: '../assets/animals/zebra.mp3' },
+            { id: 'tiger', img: '../assets/animals/tiger.png', sound: '../assets/animals/tiger.wav' }
         ];
 
         let score = 0;
@@ -231,7 +227,6 @@
         // Loop to create dense forest trail
         for (let i = 0; i < 70; i++) {
             const z = -10 - (i * 6); // Place every 6 meters
-
             // Random Tree (left or right side of path)
             const side = Math.random() > 0.5 ? 1 : -1;
             const xOffset = side * (4 + Math.random() * 8); // at least 4m from center
@@ -299,7 +294,7 @@
                     setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
 
                     // Read Sound
-                    speak(randAnimal.sound);
+                    playSound(randAnimal.sound);
 
                     // Add jumping animation natively via Javascript attributes changes
                     const startY = 2;
@@ -336,13 +331,10 @@
             hud.style.display = 'flex';
             isPlaying = true;
 
-            // Unlock audio context via silent speech
-            const u = new SpeechSynthesisUtterance('');
-            synth.speak(u);
-
-            setTimeout(() => {
-                speak('Halo! Selamat datang di Safari Ajaib! Sentuh hewannya saat terlihat ya!');
-            }, 500);
+            // Allow iOS audio unlock by playing silent audio
+            const silent = new
+                Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+            silent.play().catch(() => { });
         });
 
         // Game Loop moving the car forward smoothly
@@ -364,14 +356,13 @@
                 if (pos.z < MAX_DISTANCE) {
                     pos.z = 0;
                     rig.setAttribute('position', pos);
-                    speak('Yeeayy! Kita mulai lagi putaran safari baru!');
                 }
             }
             lastTime = time;
-            requestAnimationFrame(animateCar); // Loop
+            requestAnimationFrame(animateCar);
         }
-        requestAnimationFrame(animateCar);
 
+        requestAnimationFrame(animateCar);
     </script>
 </body>
 
