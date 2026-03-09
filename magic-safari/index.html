@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magic Safari 🦁</title>
+    <!-- A-Frame VR Library -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        /* Overlay UI */
+        .start-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, #87CEEB 0%, #4facfe 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 5rem;
+            margin: 0;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin: 20px 0 40px 0;
+            max-width: 600px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            line-height: 1.4;
+        }
+
+        .start-btn {
+            background: #FFD700;
+            color: #D2691E;
+            border: 6px solid #FFF;
+            padding: 20px 60px;
+            font-size: 3rem;
+            font-weight: 800;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 0px #DAA520, 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.1s;
+            font-family: inherit;
+        }
+
+        .start-btn:active {
+            transform: translateY(10px);
+            box-shadow: 0 0 0px #DAA520, 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* GUI Overlay for score and instructions */
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .score-box {
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff6b6b;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            border: 4px solid #ff6b6b;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .instruction {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            backdrop-filter: blur(5px);
+            align-self: flex-start;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-align: right;
+        }
+    </style>
+    <script>
+        // Custom component to make animals face the player (billboard)
+        AFRAME.registerComponent('face-player', {
+            tick: function () {
+                const camera = document.querySelector('a-camera');
+                if (camera) {
+                    const camWorldPos = new THREE.Vector3();
+                    camera.object3D.getWorldPosition(camWorldPos);
+
+                    this.el.object3D.lookAt(camWorldPos);
+                    // Keep upright
+                    this.el.object3D.rotation.x = 0;
+                    this.el.object3D.rotation.z = 0;
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <div id="start-overlay" class="start-overlay">
+        <h1 class="title">Taman Safari Ajaib! 🚙🦁</h1>
+        <p class="subtitle">Mobil akan jalan sendiri. Geser layar untuk melihat ke kiri dan kanan, lalu klik/sentuh
+            hewannya untuk meminta mereka bersuara!</p>
+        <button id="start-btn" class="start-btn">🚜 MULAI BERANGKAT!</button>
+    </div>
+
+    <!-- HUD Overlay -->
+    <div id="hud" class="hud">
+        <div class="score-box" id="score">⭐ 0</div>
+        <div class="instruction">👈 Geser layar untuk melihat<br>👆 Sentuh hewannya</div>
+    </div>
+
+    <!-- A-Frame Scene -->
+    <a-scene vr-mode-ui="enabled: false" background="color: #87ceeb">
+        <!-- Safari Ground -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="2000" height="2000" color="#7CFC00"></a-plane>
+        <a-sky color="#87ceeb"></a-sky>
+
+        <!-- Dynamic elements host -->
+        <a-entity id="forest"></a-entity>
+        <a-entity id="animals"></a-entity>
+
+        <!-- Player Rig (The car) -->
+        <a-entity id="rig" position="0 0 0">
+            <!-- Raycaster pointing downwards a bit for easier screen touch mappings -->
+            <a-camera position="0 1.6 0" look-controls="pointerLockEnabled: false" wasd-controls="enabled: false"
+                cursor="rayOrigin: mouse;" raycaster="objects: .clickable">
+            </a-camera>
+
+            <!-- Dashboard / Car Hood purely decorative -->
+            <!-- Dashboard Base -->
+            <a-box position="0 0.8 -1.2" width="2.5" height="0.5" depth="0.8" color="#FFD700"></a-box>
+            <!-- Steering Wheel -->
+            <a-torus position="-0.5 1.1 -0.9" rotation="-20 0 0" radius="0.4" radius-tubular="0.05"
+                color="#333"></a-torus>
+            <a-cylinder position="-0.5 1 -1" rotation="70 0 0" radius="0.05" height="0.5" color="#333"></a-cylinder>
+
+            <!-- Windshield Frame -->
+            <a-box position="-1.2 1.4 -1.2" width="0.1" height="1.2" depth="0.1" color="#FFD700"></a-box>
+            <a-box position="1.2 1.4 -1.2" width="0.1" height="1.2" depth="0.1" color="#FFD700"></a-box>
+            <a-box position="0 2 -1.2" width="2.5" height="0.1" depth="0.1" color="#FFD700"></a-box>
+        </a-entity>
+
+        <!-- Simple Lighting -->
+        <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+        <a-light type="directional" color="#ffffff" intensity="0.8" position="-1 1 1"></a-light>
+    </a-scene>
+
+    <script>
+        // 1. Validating Speech API
+        let synth = window.speechSynthesis;
+        function speak(text) {
+            if (!synth) return;
+            if (synth.speaking) synth.cancel(); // Stop playing current sound
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.3; // Cute voice
+            synth.speak(utterance);
+        }
+
+        // 2. High Quality Emoji Texture Generator 
+        // We use transparent HTML5 Canvas mapped down to WebGL textures
+        function createEmojiTexture(emoji) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, 512, 512);
+
+            // Draw Emoji Center Vertically
+            ctx.font = '350px Arial, sans-serif'; // Fallback ensures emoji load
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Soft shadow for depth
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 10;
+
+            ctx.fillText(emoji, 256, 280);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        // 3. Animal Dictionary with Indonesian Sounds
+        const animalData = [
+            { emoji: '🐘', name: 'Gajah', sound: 'Preeett! Aku gajah, hidungku belalai panjang!' },
+            { emoji: '🦁', name: 'Singa', sound: 'Roaarr! Aku singa, si raja hutan pemberani!' },
+            { emoji: '🐒', name: 'Monyet', sound: 'Uki uki aa! Aku monyet, suka makan pisang!' },
+            { emoji: '🦒', name: 'Jerapah', sound: 'Nyam nyam! Aku jerapah, leherku paling tinggi di hutan!' },
+            { emoji: '🐄', name: 'Sapi', sound: 'Mooooo! Aku sapi lucu penghasil susu!' },
+            { emoji: '🦓', name: 'Zebra', sound: 'Halo teman! Aku si kuda belang, jebra!' },
+            { emoji: '🐅', name: 'Harimau', sound: 'Rawrrr! Harimau gagah sedang lewat!' },
+            { emoji: '🍎', name: 'Apel', sound: 'Nyam! Wah, kamu menemukan apel segar!' } // easter egg
+        ];
+
+        let score = 0;
+        const scoreEl = document.getElementById('score');
+
+        // 4. Generate Forest & Populate Animals
+        const forestEl = document.getElementById('forest');
+        const animalsEl = document.getElementById('animals');
+        const MAX_DISTANCE = -400; // Track length
+        let animalIdCounter = 0; // used to attach individual jump animations safely
+
+        // Generate Textures
+        const animalTextures = animalData.map(d => {
+            return {
+                data: d,
+                texture: createEmojiTexture(d.emoji)
+            }
+        });
+
+        // Loop to create dense forest trail
+        for (let i = 0; i < 70; i++) {
+            const z = -10 - (i * 6); // Place every 6 meters
+
+            // Random Tree (left or right side of path)
+            const side = Math.random() > 0.5 ? 1 : -1;
+            const xOffset = side * (4 + Math.random() * 8); // at least 4m from center
+
+            // Create Tree Geometry
+            const tree = document.createElement('a-entity');
+            tree.setAttribute('position', `${xOffset} 0 ${z}`);
+
+            const leaves = document.createElement('a-cone');
+            const treeColors = ['#228B22', '#32CD32', '#006400']; // Varied green
+            leaves.setAttribute('color', treeColors[Math.floor(Math.random() * treeColors.length)]);
+            leaves.setAttribute('radius-bottom', 2 + Math.random());
+            leaves.setAttribute('height', 4 + Math.random() * 3);
+            leaves.setAttribute('position', '0 3 0');
+
+            const trunk = document.createElement('a-cylinder');
+            trunk.setAttribute('color', '#8B4513');
+            trunk.setAttribute('radius', '0.4');
+            trunk.setAttribute('height', '3');
+            trunk.setAttribute('position', '0 1.5 0');
+
+            tree.appendChild(leaves);
+            tree.appendChild(trunk);
+            forestEl.appendChild(tree);
+
+            // Scatter Animals Occasionally
+            if (i % 3 === 0) { // Every 18 meters
+                const randAnimal = animalTextures[Math.floor(Math.random() * animalTextures.length)];
+
+                // Usually opposite of the tree, closer to the road
+                const animalSide = Math.random() > 0.5 ? side : -side;
+                const aX = animalSide * (2 + Math.random() * 5); // 2 to 7 units wide
+
+                const animalWrapper = document.createElement('a-entity');
+                animalWrapper.setAttribute('position', `${aX} 2 ${z}`);
+
+                // Add bounding interaction zone
+                // Note: a-image has weird raycaster bounds sometimes, so giving it a bounding box helps
+                animalWrapper.setAttribute('geometry', 'primitive: plane; width: 4; height: 4');
+                animalWrapper.setAttribute('material', 'opacity: 0.0; transparent: true;');
+                animalWrapper.setAttribute('id', `anim-${animalIdCounter++}`);
+                animalWrapper.classList.add('clickable');
+                animalWrapper.setAttribute('face-player', '');
+
+                // The visual emoji texture
+                const img = document.createElement('a-image');
+                img.setAttribute('src', randAnimal.texture);
+                img.setAttribute('width', '4'); // big size for better tap target
+                img.setAttribute('height', '4');
+                img.setAttribute('position', '0 0 0.1'); // slight offset forward
+
+                animalWrapper.appendChild(img);
+                animalsEl.appendChild(animalWrapper);
+
+                // Add tap behavior
+                let isAnimating = false;
+                animalWrapper.addEventListener('click', () => {
+                    if (isAnimating) return; // prevent spam
+                    isAnimating = true;
+
+                    // Increase score
+                    score++;
+                    scoreEl.innerText = `⭐ ${score}`;
+                    scoreEl.style.transform = 'scale(1.3)';
+                    setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
+
+                    // Read Sound
+                    speak(randAnimal.data.sound);
+
+                    // Add jumping animation natively via Javascript attributes changes
+                    const startY = 2;
+                    let iteration = 0;
+
+                    const jumpInterval = setInterval(() => {
+                        iteration += 0.1;
+                        // Sine wave math for a jump + spin
+                        const jumpH = Math.abs(Math.sin(iteration * Math.PI)) * 2; // Jump 2 meters high
+                        const currentPos = animalWrapper.getAttribute('position');
+
+                        animalWrapper.setAttribute('position', { x: currentPos.x, y: startY + jumpH, z: currentPos.z });
+
+                        // Stop after 1 full cycle
+                        if (iteration >= 1) {
+                            clearInterval(jumpInterval);
+                            animalWrapper.setAttribute('position', { x: currentPos.x, y: startY, z: currentPos.z });
+                            isAnimating = false;
+                        }
+                    }, 20);
+                });
+            }
+        }
+
+        // 5. General Game Mechanics
+        const startBtn = document.getElementById('start-btn');
+        const overlay = document.getElementById('start-overlay');
+        const hud = document.getElementById('hud');
+        const rig = document.getElementById('rig');
+        let isPlaying = false;
+
+        startBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            hud.style.display = 'flex';
+            isPlaying = true;
+
+            // Unlock audio context via silent speech
+            const u = new SpeechSynthesisUtterance('');
+            synth.speak(u);
+
+            setTimeout(() => {
+                speak('Halo! Selamat datang di Safari Ajaib! Sentuh hewannya saat terlihat ya!');
+            }, 500);
+        });
+
+        // Game Loop moving the car forward smoothly
+        let lastTime = performance.now();
+        function animateCar(time) {
+            if (isPlaying) {
+                const dt = time - lastTime;
+
+                // Move forward smoothly (3 meters / sec)
+                const pos = rig.getAttribute('position');
+                pos.z -= 4 * (dt / 1000);
+
+                // Wobble for realistic "driving on dirt" effect
+                pos.y = Math.sin(time / 200) * 0.05;
+
+                rig.setAttribute('position', pos);
+
+                // Infinite Loop around road
+                if (pos.z < MAX_DISTANCE) {
+                    pos.z = 0;
+                    rig.setAttribute('position', pos);
+                    speak('Yeeayy! Kita mulai lagi putaran safari baru!');
+                }
+            }
+            lastTime = time;
+            requestAnimationFrame(animateCar); // Loop
+        }
+        requestAnimationFrame(animateCar);
+
+    </script>
+</body>
+
+</html>
