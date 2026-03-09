@@ -201,41 +201,19 @@
             synth.speak(utterance);
         }
 
-        // 2. High Quality Emoji Texture Generator 
-        // We use transparent HTML5 Canvas mapped down to WebGL textures
-        function createEmojiTexture(emoji) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-
-            ctx.clearRect(0, 0, 512, 512);
-
-            // Draw Emoji Center Vertically
-            ctx.font = '350px Arial, sans-serif'; // Fallback ensures emoji load
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            // Soft shadow for depth
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 10;
-
-            ctx.fillText(emoji, 256, 280);
-
-            return canvas.toDataURL('image/png');
-        }
+        // 2. High Quality Emoji Texture Generator (REMOVED - we now use real images)
+        // function createEmojiTexture(emoji) { ... }
 
         // 3. Animal Dictionary with Indonesian Sounds
+        // 3. Animal Dictionary with Indonesian Sounds & Real Images
         const animalData = [
-            { emoji: '🐘', name: 'Gajah', sound: 'Preeett! Aku gajah, hidungku belalai panjang!' },
-            { emoji: '🦁', name: 'Singa', sound: 'Roaarr! Aku singa, si raja hutan pemberani!' },
-            { emoji: '🐒', name: 'Monyet', sound: 'Uki uki aa! Aku monyet, suka makan pisang!' },
-            { emoji: '🦒', name: 'Jerapah', sound: 'Nyam nyam! Aku jerapah, leherku paling tinggi di hutan!' },
-            { emoji: '🐄', name: 'Sapi', sound: 'Mooooo! Aku sapi lucu penghasil susu!' },
-            { emoji: '🦓', name: 'Zebra', sound: 'Halo teman! Aku si kuda belang, jebra!' },
-            { emoji: '🐅', name: 'Harimau', sound: 'Rawrrr! Harimau gagah sedang lewat!' },
-            { emoji: '🍎', name: 'Apel', sound: 'Nyam! Wah, kamu menemukan apel segar!' } // easter egg
+            { id: 'elephant', img: '../assets/animals/elephant.png', name: 'Gajah', sound: 'Preeett! Aku gajah, hidungku belalai panjang!' },
+            { id: 'lion', img: '../assets/animals/lion.png', name: 'Singa', sound: 'Roaarr! Aku singa, si raja hutan pemberani!' },
+            { id: 'monkey', img: '../assets/animals/monkey.png', name: 'Monyet', sound: 'Uki uki aa! Aku monyet, suka makan pisang!' },
+            { id: 'giraffe', img: '../assets/animals/giraffe.png', name: 'Jerapah', sound: 'Nyam nyam! Aku jerapah, leherku paling tinggi di hutan!' },
+            { id: 'cow', img: '../assets/animals/cow.png', name: 'Sapi', sound: 'Mooooo! Aku sapi lucu penghasil susu!' },
+            { id: 'zebra', img: '../assets/animals/zebra.png', name: 'Zebra', sound: 'Halo teman! Aku si kuda belang, jebra!' },
+            { id: 'tiger', img: '../assets/animals/tiger.png', name: 'Harimau', sound: 'Rawrrr! Harimau gagah sedang lewat!' }
         ];
 
         let score = 0;
@@ -247,13 +225,8 @@
         const MAX_DISTANCE = -400; // Track length
         let animalIdCounter = 0; // used to attach individual jump animations safely
 
-        // Generate Textures
-        const animalTextures = animalData.map(d => {
-            return {
-                data: d,
-                texture: createEmojiTexture(d.emoji)
-            }
-        });
+        // Map Data directly
+        const animalTextures = animalData;
 
         // Loop to create dense forest trail
         for (let i = 0; i < 70; i++) {
@@ -303,9 +276,9 @@
                 animalWrapper.classList.add('clickable');
                 animalWrapper.setAttribute('face-player', '');
 
-                // The visual emoji texture
+                // The visual 3D image texture
                 const img = document.createElement('a-image');
-                img.setAttribute('src', randAnimal.texture);
+                img.setAttribute('src', randAnimal.img);
                 img.setAttribute('width', '4'); // big size for better tap target
                 img.setAttribute('height', '4');
                 img.setAttribute('position', '0 0 0.1'); // slight offset forward
@@ -326,7 +299,7 @@
                     setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
 
                     // Read Sound
-                    speak(randAnimal.data.sound);
+                    speak(randAnimal.sound);
 
                     // Add jumping animation natively via Javascript attributes changes
                     const startY = 2;
