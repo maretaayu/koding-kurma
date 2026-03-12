@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Daily Tracker</title>
+  <style>
+    :root {
+      --bg-color: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --text-soft: #94A3B8;
+      --border-color: #E2E8F0;
+      --primary: #2563EB;
+      --success: #10B981;
+      --accent: #8B5CF6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .tracker {
+      padding: 0;
+    }
+
+    .sticky-header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 24px 20px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .overall-pct {
+      font-size: 32px;
+      font-weight: 800;
+      text-align: right;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .overall-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+      text-align: right;
+    }
+
+    .overall-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .progress-bar-wrap {
+      height: 6px;
+      background: var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .content {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px 0;
+    }
+
+    .phase-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .phase-tab {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 4px;
+      cursor: pointer;
+      background: var(--card-bg);
+      text-align: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .phase-tab.active {
+      background: var(--text-main);
+      border-color: var(--text-main);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .phase-tab-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-family: inherit;
+    }
+
+    .phase-tab.active .phase-tab-label {
+      color: #FFFFFF;
+    }
+
+    .phase-tab-sub {
+      font-size: 10px;
+      color: var(--text-soft);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .phase-tab.active .phase-tab-sub {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .week-pills {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .week-pill {
+      flex: 1;
+      padding: 8px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      background: var(--card-bg);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .week-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .day-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+
+    .day-btn {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 4px 8px;
+      cursor: pointer;
+      background: var(--card-bg);
+      text-align: center;
+      font-family: inherit;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .day-btn.active {
+      border-color: var(--primary);
+      background: #F0F7FF;
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .day-btn.today {
+      border-style: dashed;
+      border-width: 2px;
+      border-color: var(--accent);
+    }
+
+    .day-name {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .day-num {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .day-btn.active .day-num {
+      color: var(--primary);
+    }
+
+    .day-month {
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .day-mini-bar {
+      height: 3px;
+      background: var(--border-color);
+      border-radius: 2px;
+      margin: 0 4px;
+      overflow: hidden;
+    }
+
+    .day-mini-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--success);
+    }
+
+    .today-dot {
+      font-size: 7px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-top: 4px;
+      font-family: inherit;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .day-title {
+      font-size: 15px;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .day-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .day-count {
+      font-size: 24px;
+      font-weight: 800;
+      text-align: right;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .day-count-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    .day-bar-wrap {
+      height: 6px;
+      background: var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .day-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    .tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      cursor: pointer;
+      background: var(--card-bg);
+      text-align: left;
+      font-family: inherit;
+      transition: all 0.2s;
+      width: 100%;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .task-btn:hover {
+      border-color: var(--text-soft);
+      transform: translateX(4px);
+    }
+
+    .task-btn.done {
+      background: #F8FAF9;
+      border-color: var(--success);
+      box-shadow: none;
+    }
+
+    .task-btn.done .task-text {
+      text-decoration: line-through;
+      color: var(--text-soft);
+    }
+
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--border-color);
+      background: transparent;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .checkbox.checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .checkmark {
+      font-size: 12px;
+      color: #FFFFFF;
+      font-weight: 900;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .section-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .badge-speaking {
+      background: #FCE7F3;
+      color: #DB2777;
+    }
+
+    .badge-listening {
+      background: #DBEAFE;
+      color: #2563EB;
+    }
+
+    .badge-reading {
+      background: #D1FAE5;
+      color: #059669;
+    }
+
+    .badge-writing {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .badge-mocktest {
+      background: #EDE9FE;
+      color: #7C3AED;
+    }
+
+    .badge-examprep {
+      background: #FFEDD5;
+      color: #EA580C;
+    }
+
+    .task-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .task-text {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .done-banner {
+      margin-top: 20px;
+      padding: 16px;
+      background: #ECFDF5;
+      border: 1px solid #10B981;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 14px;
+      color: #047857;
+      font-weight: 700;
+    }
+
+    .tips {
+      margin-top: 32px;
+      padding: 20px;
+      background: #F1F5F9;
+      border-radius: 16px;
+    }
+
+    .tips-title {
+      font-size: 11px;
+      color: var(--text-soft);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .tip-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .tip-label {
+      font-weight: 700;
+      color: var(--text-main);
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="tracker" id="app"></div>
+  <script>
+    const START = new Date("2026-03-13T00:00:00");
+    const TODAY = new Date().toISOString().split("T")[0];
+    const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    const DAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+    const PHASE_INFO = [
+      { id: "1-2", label: "W1–2", sub: "Foundation", weeks: [1, 2] },
+      { id: "3-4", label: "W3–4", sub: "Skill Build", weeks: [3, 4] },
+      { id: "5-6", label: "W5–6", sub: "Intensif", weeks: [5, 6] },
+      { id: "7-8", label: "W7–8", sub: "Exam Mode", weeks: [7, 8] },
+    ];
+
+    function getPhase(w) { return w <= 2 ? "1-2" : w <= 4 ? "3-4" : w <= 6 ? "5-6" : "7-8"; }
+
+    function getWeekDays(w) {
+      const s = new Date(START);
+      s.setDate(s.getDate() + (w - 1) * 7);
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(s);
+        d.setDate(s.getDate() + i);
+        // Correctly handle ISO date string without timezone shift
+        const offset = d.getTimezoneOffset();
+        const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+        const iso = localDate.toISOString().split("T")[0];
+        return { iso, dn: DAYS[d.getDay()], date: d.getDate(), month: d.getMonth() + 1 };
+      });
+    }
+
+    const DAILY = {
+      "2026-03-13": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record 5 jawaban Part 1: name, hometown, job/study, daily routine, hobbies" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik EDUCATION — 10 kata kunci + 3 sinonim tiap kata" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 14 Test 1 Section 1 & 2 — kerjakan + cek jawaban" },
+        { id: "d", s: "Reading", t: "30 min", task: "Baca 1 artikel BBC/Guardian, tandai kata baru, latihan skimming judul & paragraf pertama" },
+        { id: "e", s: "Writing", t: "20 min", task: "Baca band descriptor Task 2: pahami perbedaan Band 5, 6, 7" },
+      ],
+      "2026-03-14": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record 5 jawaban Part 1: weather, music, sports, reading, travel" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik TECHNOLOGY — 10 kata kunci + contoh kalimat" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 14 Test 1 Section 3 & 4 — kerjakan + analisis kesalahan" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 14 Reading Test 1 Passage 1 — timer 18 menit" },
+        { id: "e", s: "Writing", t: "20 min", task: "Analisa 1 contoh Task 2 essay Band 7 — catat struktur & vocabulary" },
+      ],
+      "2026-03-15": [
+        { id: "a", s: "Speaking", t: "45 min", task: "Latihan Part 2: cue card 'Describe a person you admire' — rekam, dengar, catat kata yang diulang" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik ENVIRONMENT — 10 kata + practice 3 kalimat opini" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 14 Test 2 Section 1 & 2 — fokus form-filling & MCQ" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 14 Reading Test 1 Passage 2 — fokus True/False/Not Given" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis intro + 1 body paragraph Task 2 topic: 'Technology affects communication'" },
+      ],
+      "2026-03-16": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan Part 3 questions topik Education — jawab 5 pertanyaan, pakai ARE formula" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik HEALTH — 10 kata + upgrade kata 'good' jadi 5 alternatif" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 14 Test 2 Section 3 & 4 — baca transcript setelah selesai" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 14 Reading Test 1 Passage 3 — fokus Matching Headings" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis kesimpulan + review full essay kemarin, cek: ada thesis? contoh? cohesion?" },
+      ],
+      "2026-03-17": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record Part 1 + Part 2: 'Describe a place you want to visit' — timer ketat 1-2 menit" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik WORK & CAREER — 10 kata + contoh jawaban Part 1" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 15 Test 1 Section 1 & 2 — identifikasi jenis soal: diagram, MCQ, short answer" },
+        { id: "d", s: "Reading", t: "30 min", task: "Latihan scanning: buka artikel ilmiah, cari 5 specific info dalam 10 menit" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis Task 1: Line graph description — fokus overview sentence" },
+      ],
+      "2026-03-18": [
+        { id: "a", s: "Speaking", t: "60 min", task: "Sesi panjang: rekam full Part 1+2+3 (simulasi speaking test 15 menit) — dengar ulang & self-evaluate" },
+        { id: "b", s: "Listening", t: "45 min", task: "Cambridge 15 Test 1 Section 3 & 4 — analisis kesalahan, tulis kenapa jawaban salah" },
+        { id: "c", s: "Reading", t: "45 min", task: "Cambridge 15 Reading Test 1 full passage 1 & 2 — review semua jawaban salah" },
+        { id: "d", s: "Writing", t: "30 min", task: "Tulis full Task 2 essay (250 kata): 'Social media has more benefits than drawbacks' — timer 40 menit" },
+      ],
+      "2026-03-19": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review rekaman kemarin: list semua kata yang diulang → cari sinonimnya" },
+        { id: "b", s: "Listening", t: "45 min", task: "Cambridge 15 Test 1 full — kerjakan ulang section yang banyak salah dari kemarin" },
+        { id: "c", s: "Reading", t: "45 min", task: "Cambridge 15 Reading Test 1 Passage 3 + review semua tipe soal yang salah" },
+        { id: "d", s: "Writing", t: "20 min", task: "Self-check essay kemarin: apakah ada 4 paragraf? Apakah tiap paragraph punya 1 ide utama?" },
+      ],
+      "2026-03-20": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan filler phrases: rekam 5 jawaban Part 1, gunakan 'From my perspective / In my experience' tiap jawaban" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik FAMILY & RELATIONSHIPS — 10 kata" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 15 Test 2 Section 1 & 2 — fokus note completion & table filling" },
+        { id: "d", s: "Reading", t: "30 min", task: "Drill khusus T/F/NG: Cambridge 14 Test 2 Passage 1 — baca soal dulu, baru passage" },
+        { id: "e", s: "Writing", t: "20 min", task: "Latihan paraphrase: tulis ulang 5 kalimat dari essay contoh dengan kata-katamu sendiri" },
+      ],
+      "2026-03-21": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record Part 2: 'Describe a skill you want to learn' — fokus: jangan pause lebih dari 2 detik" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik FOOD & CULTURE — 10 kata + contoh jawaban Part 1" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 15 Test 2 Section 3 & 4 — baca transcript, tandai kata yang tidak familiar" },
+        { id: "d", s: "Reading", t: "30 min", task: "Drill khusus Matching Headings: Cambridge 14 Test 3 Passage 2" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis Task 1: Bar chart — latihan describe trends dengan kata: rose, declined, fluctuated, remained stable" },
+      ],
+      "2026-03-22": [
+        { id: "a", s: "Speaking", t: "45 min", task: "Latihan Part 3 topik Technology: jawab 6 pertanyaan, rekam — tiap jawaban min 3 kalimat (ARE)" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: topik TRANSPORT & CITIES — 10 kata" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 15 Test 3 Section 1 & 2 — identifikasi distractor" },
+        { id: "d", s: "Reading", t: "30 min", task: "Latihan Matching Information: Cambridge 15 Test 1 Passage 2" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis Task 2 intro paragraph x2 versi — bandingkan mana yang lebih jelas thesis-nya" },
+      ],
+      "2026-03-23": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record full Part 1+2 ulang topik minggu ini — compare dengan rekaman hari pertama" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Buat upgrade list: tukar kata very, good, bad, big, important dengan alternatif yang lebih akademis" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 15 Test 3 Section 3 & 4 — fokus prediksi jawaban sebelum audio dimulai" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 15 Test 2 Passage 1 — timer 18 menit, review strategi" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis body paragraph 1 Task 2: 'Online learning vs traditional classroom'" },
+      ],
+      "2026-03-24": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan Part 3 topik Environment — jawab 5 pertanyaan dengan referensi ke society level" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Review upgrade list dari kemarin — coba pakai semua kata baru dalam 3 jawaban" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 16 Test 1 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 15 Test 2 Passage 2 — fokus sentence completion" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis body paragraph 2 + conclusion essay 'Online learning vs traditional'" },
+      ],
+      "2026-03-25": [
+        { id: "a", s: "Speaking", t: "60 min", task: "Full speaking simulation 15 menit — rekam, self-score pakai kriteria: fluency, vocab, grammar, pronunciation" },
+        { id: "b", s: "Listening", t: "45 min", task: "Cambridge 16 Test 1 Section 3 & 4 — analisis dan review" },
+        { id: "c", s: "Reading", t: "45 min", task: "Cambridge 15 Test 2 Passage 3 + review semua kesalahan" },
+        { id: "d", s: "Writing", t: "30 min", task: "Tulis full Task 2 (250 kata): 'Government should invest in public transport' — timer 40 menit" },
+      ],
+      "2026-03-26": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review self-score kemarin — fokus 1 area lemah, latihan khusus area itu" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 16 Test 2 Section 1 & 2 — prediksi jenis info yang akan ditanya" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 16 Test 1 Passage 1 — fokus summary completion" },
+        { id: "d", s: "Writing", t: "30 min", task: "Review essay kemarin: cek linking words (however, furthermore, on the other hand) — minimal 4 per essay" },
+      ],
+      "2026-03-27": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Thinking in English: ceritakan aktivitas kemarin dalam hati pakai bahasa Inggris 10 menit, lalu rekam versi singkatnya" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: ENVIRONMENT & SUSTAINABILITY — 10 kata akademis" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 16 Test 2 Section 3 & 4 — review transcript" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 16 Test 1 Passage 2 — fokus multiple choice" },
+        { id: "e", s: "Writing", t: "20 min", task: "Latihan Task 1 Pie chart: tulis 4 kalimat deskripsi tanpa lihat contoh" },
+      ],
+      "2026-03-28": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Part 3 topik Health — pakai kata dari word bank, jawab 5 pertanyaan, rekam" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: GLOBALISATION — 10 kata kunci" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 16 Test 3 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 16 Test 1 Passage 3 — timer ketat 18 menit" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis outline (bukan full essay) untuk 3 topik Task 2 berbeda — latihan brainstorm cepat" },
+      ],
+      "2026-03-29": [
+        { id: "a", s: "Speaking", t: "45 min", task: "Record Part 2: 'Describe an important decision you made' — latihan narrative tense" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Variasi grammar: pakai conditional 'If I were to...' dan perfect 'I have always believed...' dalam jawaban" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 16 Test 3 Section 3 & 4 — identifikasi pola soal yang sering salah" },
+        { id: "d", s: "Reading", t: "30 min", task: "Drill Matching Features: Cambridge 16 Test 2 Passage 2" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis 1 body paragraph dengan 3 teknik: topic sentence + explanation + specific example" },
+      ],
+      "2026-03-30": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan abstract topics Part 3: Culture, National identity, Globalization — 5 pertanyaan" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Latihan pronunciation: rekam, fokus word stress pada kata 3-4 suku kata" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 16 Test 4 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 16 Test 2 Passage 3 — review strategi matching headings" },
+        { id: "e", s: "Writing", t: "20 min", task: "Latihan paraphrase soal Task 2: tulis ulang 5 pertanyaan essay tanpa pakai kata yang sama" },
+      ],
+      "2026-03-31": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review rekaman seminggu ini: buat list progress — kata baru yang sudah dipakai, filler yang sudah natural" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 16 Test 4 Section 3 & 4 — review transcript" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 16 Test 3 Passage 1 — fokus flow (skimming 3 menit dulu)" },
+        { id: "d", s: "Writing", t: "20 min", task: "Mini review: buka 3 essay lama, koreksi sendiri — apakah ada kesalahan grammar yang berulang?" },
+      ],
+      "2026-04-01": [
+        { id: "a", s: "Speaking", t: "60 min", task: "Full mock speaking: Part 1 (5 menit) + Part 2 (2 menit) + Part 3 (5 menit) — rekam & evaluasi" },
+        { id: "b", s: "Listening", t: "45 min", task: "Cambridge 17 Test 1 full — kerjakan under exam conditions" },
+        { id: "c", s: "Reading", t: "45 min", task: "Cambridge 17 Test 1 Passage 1 & 2 — 36 menit untuk 2 passage" },
+        { id: "d", s: "Writing", t: "30 min", task: "Tulis full Task 2 (250 kata): 'Young people are less interested in politics' — timer 40 menit" },
+      ],
+      "2026-04-02": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review mock speaking kemarin — score fluency & vocab, identifikasi gap terbesar" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Latihan specific vocabulary: ECONOMICS & FINANCE — 8 kata kunci" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 17 Test 1 — re-listen section yang banyak salah, baca transcript" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 17 Test 1 Passage 3 — fokus flow dan time management" },
+        { id: "e", s: "Writing", t: "20 min", task: "Review Task 2 kemarin — cek cohesive devices, apakah tiap paragraf nyambung?" },
+      ],
+      "2026-04-03": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan Part 3 topik Work: 'Should people work from home?', 'Is job satisfaction more important than salary?' — 5 pertanyaan" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: EDUCATION SYSTEM — 10 kata spesifik" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 17 Test 2 Section 1 & 2 — prediksi sebelum dengar" },
+        { id: "d", s: "Reading", t: "30 min", task: "Drill khusus Yes/No/Not Given — Cambridge 17 Test 1 Passage 2" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis 2 intro paragraph Task 2 dengan different thesis positions — pilih yang lebih kuat" },
+      ],
+      "2026-04-04": [
+        { id: "a", s: "Speaking", t: "45 min", task: "Record Part 2: 'Describe a time you helped someone' — fokus past tense + time expressions" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Upgrade list lanjutan: tukar 'I think' dengan 6 alternatif formal/informal yang berbeda" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 17 Test 2 Section 3 & 4 — analisis jenis distractor yang digunakan" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 17 Test 2 Passage 1 — eksperimen: skim 2 menit dulu, lalu jawab soal" },
+        { id: "e", s: "Writing", t: "20 min", task: "Task 1: latihan describe a process/diagram — 'How is paper recycled?'" },
+      ],
+      "2026-04-05": [
+        { id: "a", s: "Speaking", t: "60 min", task: "Sesi intensif: rekam 12 jawaban Part 3 dari 3 topik berbeda (Society, Environment, Technology) — evaluasi konsistensi" },
+        { id: "b", s: "Listening", t: "45 min", task: "Cambridge 17 Test 2 Section 1-4 full — kerjakan + review lengkap" },
+        { id: "c", s: "Reading", t: "45 min", task: "Cambridge 17 Test 2 Passage 2 & 3 — timer 36 menit" },
+        { id: "d", s: "Writing", t: "30 min", task: "Full Task 2 (250 kata): 'Celebrities earn too much money' — timer 40 menit" },
+      ],
+      "2026-04-06": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review 12 rekaman kemarin — buat list: kata apa yang paling sering diulang? Grammar error apa yang berulang?" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 17 Test 3 Section 1 & 2" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 17 Test 2 Passage 3 — review strategi" },
+        { id: "d", s: "Writing", t: "30 min", task: "Review essay kemarin: identifikasi 3 kalimat paling lemah — tulis ulang lebih kuat" },
+      ],
+      "2026-04-07": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan pronunciation kata sulit dari word banks: rekam & dengar ulang, fokus intonasi" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: MEDIA & COMMUNICATION — 10 kata kunci" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 17 Test 3 Section 3 & 4" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 17 Test 3 Passage 1 — fokus sentence completion" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis 3 body paragraphs (tanpa intro/conclusion) untuk topik berbeda — latihan speed writing" },
+      ],
+      "2026-04-08": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan Part 3 complex questions: 'How has technology changed social interaction over the last 20 years?' — jawab 5 menit" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: CRIME & JUSTICE — 8 kata kunci" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 17 Test 4 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 17 Test 3 Passage 2 — fokus Matching Headings dengan teknik keyword" },
+        { id: "e", s: "Writing", t: "20 min", task: "Task 1: Two pie charts — latihan compare & contrast language" },
+      ],
+      "2026-04-09": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record 10 Part 1 answers rapid-fire — tiap pertanyaan max 30 detik, fokus kecepatan & naturalness" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Review word banks minggu ini — quiz diri sendiri: definisikan tiap kata tanpa lihat" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 17 Test 4 Section 3 & 4" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 17 Test 3 Passage 3 — full timer" },
+        { id: "e", s: "Writing", t: "20 min", task: "Latihan intro Task 2: tulis 5 intro berbeda dalam 20 menit — paraphrase + position + outline" },
+      ],
+      "2026-04-10": [
+        { id: "a", s: "Speaking", t: "60 min", task: "Full mock speaking 15 menit — rekam, score 4 kriteria, tulis action plan minggu depan" },
+        { id: "b", s: "Listening", t: "45 min", task: "Cambridge 18 Test 1 full — exam conditions, no pause" },
+        { id: "c", s: "Reading", t: "45 min", task: "Cambridge 18 Test 1 Passage 1 & 2 — review semua jawaban salah" },
+        { id: "d", s: "Writing", t: "30 min", task: "Full Task 2 (250 kata): 'Children should learn to cook at school' — timer 40 menit" },
+      ],
+      "2026-04-11": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review mock + action plan kemarin — latihan khusus area terlemah selama 30 menit" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 18 Test 1 — re-listen section terburuk, analisis transcript" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 18 Test 1 Passage 3 — review semua tipe soal" },
+        { id: "d", s: "Writing", t: "30 min", task: "Essay feedback diri: beri skor Task 2 kemarin pakai 4 kriteria IELTS (TR, CC, LR, GRA)" },
+      ],
+      "2026-04-12": [
+        { id: "a", s: "Speaking", t: "45 min", task: "Intensif: rekam 6 jawaban Part 3 dari topik abstrak (Art, History, Science) — min 5 kalimat per jawaban" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Latihan collocations: strong/heavy/high/deep + kata benda — 10 pasangan" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 18 Test 2 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 18 Test 2 Passage 1 — fokus lokasi jawaban yang cepat" },
+        { id: "e", s: "Writing", t: "20 min", task: "Latihan conclusion paragraph: tulis 4 versi conclusion berbeda untuk topik yang sama" },
+      ],
+      "2026-04-13": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan topik baru: 'Artificial Intelligence' — Part 3 style, 5 pertanyaan, record & review" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Word bank: SCIENCE & INNOVATION — 10 kata kunci" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 18 Test 2 Section 3 & 4 — fokus multiple choice dan matching" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 18 Test 2 Passage 2 — fokus True/False/Not Given strategy" },
+        { id: "e", s: "Writing", t: "20 min", task: "Task 1: Mixed chart (line + bar) — latihan describe 2 data sources sekaligus" },
+      ],
+      "2026-04-14": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Part 2: 'Describe a historical event you find interesting' — latihan narrative + connectors" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Latihan discourse markers: 'Having said that', 'What I mean is', 'To put it another way'" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 18 Test 3 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 18 Test 2 Passage 3 — full timer 18 menit" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis Task 2 body paragraph dengan complex sentences: relative clauses & passive voice" },
+      ],
+      "2026-04-15": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review semua rekaman bulan pertama — identifikasi 3 pattern error yang paling sering" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 18 Test 3 Section 3 & 4" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 18 Test 3 Passage 1 — review strategi berdasarkan tipe soal" },
+        { id: "d", s: "Writing", t: "30 min", task: "Tulis full Task 2 (250 kata): 'Space exploration is a waste of money' — fokus argument quality" },
+      ],
+      "2026-04-16": [
+        { id: "a", s: "Speaking", t: "60 min", task: "Full mock speaking — self-score, tulis 3 target improvement untuk 2 minggu terakhir" },
+        { id: "b", s: "Mock Test", t: "3 jam", task: "Cambridge 18 Test 3: Listening + Reading full (exam conditions, no pause, timer ketat)" },
+        { id: "c", s: "Writing", t: "60 min", task: "Cambridge 18 Test 3 Writing Task 1 + Task 2 — timer ketat (20 menit + 40 menit)" },
+      ],
+      "2026-04-17": [
+        { id: "a", s: "Mock Test", t: "60 min", task: "Review full mock test kemarin: hitung estimasi band score, buat error analysis per section" },
+        { id: "b", s: "Speaking", t: "30 min", task: "Latihan area speaking terlemah berdasarkan self-score mock test" },
+        { id: "c", s: "Listening", t: "30 min", task: "Re-drill tipe soal yang paling banyak salah di mock test" },
+        { id: "d", s: "Reading", t: "30 min", task: "Re-drill tipe soal yang paling banyak salah di mock test" },
+        { id: "e", s: "Writing", t: "20 min", task: "Review essay mock test: identifikasi 3 kelemahan utama dan tulis versi perbaikan" },
+      ],
+      "2026-04-18": [
+        { id: "a", s: "Speaking", t: "45 min", task: "Latihan intensif Part 3 topik yang paling susah — rekam 8 jawaban, fokus range vocabulary" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Latihan idioms natural untuk speaking: 'On the whole', 'By and large', 'As a matter of fact'" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 19 Test 1 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 19 Test 1 Passage 1 — eksperimen strategi baru berdasarkan error analysis" },
+        { id: "e", s: "Writing", t: "30 min", task: "Tulis full Task 2 (250 kata) topik baru — fokus menerapkan feedback dari mock test" },
+      ],
+      "2026-04-19": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record Part 1+2+3 mini simulation (10 menit) — bandingkan dengan rekaman 4 minggu lalu" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Finalisasi word bank: review semua 10 topik, quiz diri sendiri 5 kata per topik" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 19 Test 1 Section 3 & 4" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 19 Test 1 Passage 2" },
+        { id: "e", s: "Writing", t: "20 min", task: "Task 1 latihan: Map/diagram — describe changes using passive voice" },
+      ],
+      "2026-04-20": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan spontan: lihat gambar/video 1 menit, langsung ceritakan dalam bahasa Inggris 2 menit tanpa persiapan" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Grammar untuk speaking: latihan pakai 'it is + adjective + to...' dan 'there is a tendency to...'" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 19 Test 2 Section 1 & 2" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 19 Test 1 Passage 3 — review time management" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis outline + intro untuk 4 topik dalam 20 menit — speed brainstorming" },
+      ],
+      "2026-04-21": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan 'talking around' kata yang tidak tahu — jika lupa kata, jelaskan artinya dalam bahasa Inggris" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 19 Test 2 Section 3 & 4" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 19 Test 2 Passage 1 — fokus keyword technique untuk semua tipe soal" },
+        { id: "d", s: "Writing", t: "30 min", task: "Full Task 2 (250 kata): 'The internet has changed the way people communicate' — timer 40 menit" },
+      ],
+      "2026-04-22": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan Part 3 opini kontroversial: 'Is it acceptable to eat meat?', 'Should university be free?' — present 2 sisi" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 19 Test 3 Section 1 & 2" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 19 Test 2 Passage 2 — fokus lokalisasi jawaban dengan skim & scan" },
+        { id: "d", s: "Writing", t: "20 min", task: "Task 1: Table — latihan describe dan compare data dari tabel statistik" },
+      ],
+      "2026-04-23": [
+        { id: "a", s: "Mock Test", t: "3 jam", task: "Cambridge 19 Test 3 full: Listening + Reading + Writing Task 1 + Task 2 — full exam conditions" },
+        { id: "b", s: "Speaking", t: "30 min", task: "Full mock speaking 15 menit setelah mock test — simulate test day back-to-back" },
+      ],
+      "2026-04-24": [
+        { id: "a", s: "Mock Test", t: "60 min", task: "Review mock test kemarin secara menyeluruh — hitung band score estimate, buat analisis per section" },
+        { id: "b", s: "Speaking", t: "30 min", task: "Identifikasi 2 topik Part 3 yang paling susah — latihan intensif 2 topik tersebut" },
+        { id: "c", s: "Writing", t: "30 min", task: "Review Task 1 & Task 2 dari mock test — perbaiki kalimat lemah, cek cohesion" },
+      ],
+      "2026-04-25": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan confidence: rekam jawaban tanpa stop — jika salah, lanjut saja jangan mulai ulang" },
+        { id: "b", s: "Speaking", t: "15 min", task: "Review semua filler phrases & discourse markers — latih sampai terasa natural" },
+        { id: "c", s: "Listening", t: "30 min", task: "Cambridge 19 Test 4 Section 1 & 2 — re-drill tipe soal yang masih salah" },
+        { id: "d", s: "Reading", t: "30 min", task: "Cambridge 19 Test 3 Passage 1 — speed reading drill: jawab dalam 15 menit" },
+        { id: "e", s: "Writing", t: "20 min", task: "Tulis Task 1 + Task 2 intro dalam 20 menit — latihan efisiensi" },
+      ],
+      "2026-04-26": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Record 5 Part 2 cue cards dari topik berbeda — pilih topik yang belum pernah dilatih" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 19 Test 4 Section 3 & 4" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 19 Test 3 Passage 2 & 3 — review strategi keseluruhan" },
+        { id: "d", s: "Writing", t: "20 min", task: "Buat template struktur Task 2 yang akan kamu gunakan saat exam — hafalkan" },
+      ],
+      "2026-04-27": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan Part 1 rapid fire: 20 pertanyaan berbeda, tiap jawaban 2-3 kalimat, no pause" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 17 Test 4 — re-do test yang sudah lama dikerjakan, cek apakah ada improvement" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 19 Test 4 Passage 1 — speed drill 15 menit" },
+        { id: "d", s: "Writing", t: "30 min", task: "Full Task 2 (250 kata): 'Animals should not be used for medical research' — fokus coherence" },
+      ],
+      "2026-04-28": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Review rekaman 2 minggu terakhir — catat konkret: filler lebih natural? vocabulary lebih beragam?" },
+        { id: "b", s: "Listening", t: "30 min", task: "Cambridge 19 Test 4 Section 1-4 — full under exam conditions" },
+        { id: "c", s: "Reading", t: "30 min", task: "Cambridge 19 Test 4 Passage 2 & 3" },
+        { id: "d", s: "Writing", t: "20 min", task: "Review 3 Task 2 essay terakhir: cek grammar range — sudah pakai complex sentences?" },
+      ],
+      "2026-04-29": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan exam strategy: jika tidak tahu jawaban Part 3, gunakan hedging language — 'It depends on...', 'In some cases...'" },
+        { id: "b", s: "Listening", t: "30 min", task: "Re-drill Cambridge 14 Test 1 — bandingkan hasil dengan 7 minggu lalu" },
+        { id: "c", s: "Reading", t: "30 min", task: "Speed drill: 1 passage dalam 15 menit — fokus T/F/NG dan Matching Headings" },
+        { id: "d", s: "Writing", t: "20 min", task: "Task 1: latihan semua chart types dalam 20 menit — 1 kalimat overview per chart" },
+      ],
+      "2026-04-30": [
+        { id: "a", s: "Mock Test", t: "3 jam", task: "FULL MOCK TEST — Cambridge 18 Test 4: Listening + Reading + Writing + Speaking (semua kondisi exam)" },
+        { id: "b", s: "Exam Prep", t: "—", task: "Setelah mock: catat perasaan dan kondisi — apakah panic? capek di section mana?" },
+      ],
+      "2026-05-01": [
+        { id: "a", s: "Mock Test", t: "60 min", task: "Review full mock test kemarin — estimasi band score, buat list prioritas terakhir" },
+        { id: "b", s: "Speaking", t: "30 min", task: "Latihan khusus area speaking yang masih kurang berdasarkan mock test kemarin" },
+        { id: "c", s: "Writing", t: "30 min", task: "Review Task 1 + Task 2 dari mock — final corrections" },
+      ],
+      "2026-05-02": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Latihan relaxed speaking — ceritakan film/buku favorit dalam bahasa Inggris 5 menit, tanpa rekaman" },
+        { id: "b", s: "Listening", t: "30 min", task: "Listen podcast/TED Talk 30 menit — fokus menikmati, bukan belajar intensif" },
+        { id: "c", s: "Reading", t: "30 min", task: "Speed drill ringan: 1 passage familiar tipe — fokus confidence bukan skor" },
+        { id: "d", s: "Writing", t: "20 min", task: "Review template Task 1 & Task 2 yang sudah dibuat — pastikan sudah hafal strukturnya" },
+      ],
+      "2026-05-03": [
+        { id: "a", s: "Speaking", t: "30 min", task: "Mini simulation speaking: Part 1+2+3 dalam 12 menit — fokus fluency, jangan khawatir kesalahan" },
+        { id: "b", s: "Listening", t: "20 min", task: "Re-listen Cambridge 14 Test 1 section 1 — reminder bahwa kamu sudah jauh lebih baik dari awal" },
+        { id: "c", s: "Reading", t: "20 min", task: "Baca 1 artikel yang menarik — reading for pleasure, bukan latihan" },
+        { id: "d", s: "Exam Prep", t: "15 min", task: "Review exam logistics: lokasi test, jam berapa berangkat, bawa apa saja" },
+        { id: "e", s: "Exam Prep", t: "—", task: "Tidur cukup malam ini — istirahat adalah bagian dari persiapan" },
+      ],
+      "2026-05-04": [
+        { id: "a", s: "Speaking", t: "20 min", task: "Record 3 Part 1 jawaban favoritmu — dengarkan, rasakan seberapa jauh kamu berkembang" },
+        { id: "b", s: "Exam Prep", t: "15 min", task: "Review strategi per section: listening (predict), reading (skim first), writing (outline dulu)" },
+        { id: "c", s: "Exam Prep", t: "—", task: "Jangan belajar baru hari ini — review saja yang sudah dikuasai" },
+        { id: "d", s: "Exam Prep", t: "—", task: "Tidur sebelum jam 11 malam" },
+      ],
+      "2026-05-05": [
+        { id: "a", s: "Exam Prep", t: "15 min", task: "Baca ulang notes penting: upgrade list, ARE formula, linking words — JANGAN belajar hal baru" },
+        { id: "b", s: "Exam Prep", t: "—", task: "Makan cukup, minum air banyak, olahraga ringan" },
+        { id: "c", s: "Exam Prep", t: "—", task: "Siapkan semua keperluan test (ID, alat tulis, dll)" },
+        { id: "d", s: "Exam Prep", t: "—", task: "Tidur lebih awal — besok kamu siap!" },
+      ],
+      "2026-05-06": [
+        { id: "a", s: "Exam Prep", t: "—", task: "Hari tenang — tidak ada belajar baru, hanya relaksasi" },
+        { id: "b", s: "Exam Prep", t: "—", task: "Pastikan semua dokumen sudah siap untuk hari test" },
+        { id: "c", s: "Exam Prep", t: "—", task: "Tidur cukup — ini investasi terpenting hari ini" },
+      ],
+      "2026-05-07": [
+        { id: "a", s: "Exam Prep", t: "—", task: "Sarapan yang baik sebelum test" },
+        { id: "b", s: "Exam Prep", t: "—", task: "Arrive early di lokasi test — minimal 30 menit sebelum waktu registrasi" },
+        { id: "c", s: "Exam Prep", t: "—", task: "Ingat: kamu sudah berlatih keras 8 minggu. Percaya kemampuanmu!" },
+      ],
+    };
+
+    const TIPS = [
+      ["Variasi opener", '"From my perspective" / "In my experience" / "As far as I know"'],
+      ["ARE formula", "Answer → Reason → Example untuk tiap jawaban Part 3"],
+      ["Jangan ulang kata", "Cari sinonim — jangan pakai kata yang sama 2x dalam 1 jawaban"],
+      ["Filler natural", '"That\'s an interesting question" / "Let me think about that"'],
+    ];
+
+    function badgeClass(s) {
+      const m = { Speaking: "speaking", Listening: "listening", Reading: "reading", Writing: "writing", "Mock Test": "mocktest", "Exam Prep": "examprep" };
+      return "section-badge badge-" + (m[s] || "mocktest");
+    }
+
+    const STORAGE_KEY = "ielts_tracker_progress";
+    const saved = localStorage.getItem(STORAGE_KEY);
+    let state = saved ? JSON.parse(saved) : { week: 1, day: "2026-03-13", checked: {} };
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function render() {
+      const app = document.getElementById("app");
+      const days = getWeekDays(state.week);
+      const tasks = DAILY[state.day] || [];
+      const dayDone = tasks.filter(t => state.checked[state.day + "__" + t.id]).length;
+      const dayTotal = tasks.length;
+      const dayPct = dayTotal > 0 ? Math.round((dayDone / dayTotal) * 100) : 0;
+
+      let totDone = 0, totAll = 0;
+      for (let w = 1; w <= 8; w++) {
+        getWeekDays(w).forEach(d => {
+          const ts = DAILY[d.iso] || [];
+          ts.forEach(t => { totAll++; if (state.checked[d.iso + "__" + t.id]) totDone++; });
+        });
+      }
+      const overallPct = totAll > 0 ? Math.round((totDone / totAll) * 100) : 0;
+      const selDate = new Date(state.day + "T00:00:00");
+      const selLabel = selDate.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      const phaseSub = PHASE_INFO.find(p => p.weeks.includes(state.week))?.sub || "";
+      const barColor = dayPct === 100 ? "linear-gradient(90deg,#4ADE80,#34D399)" : "linear-gradient(90deg,#F472B6,#FBBF24)";
+      const pctColor = overallPct > 60 ? "#4ADE80" : "#FBBF24";
+      const dayPctColor = dayPct === 100 ? "#4ADE80" : dayPct >= 50 ? "#FBBF24" : "#F472B6";
+
+      app.innerHTML = `
+<div class="sticky-header">
+  <div style="max-width:640px;margin:0 auto">
+    <div class="header">
+      <div>
+        <div style="font-size:10px;color:var(--text-soft);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:3px">IELTS STUDY TRACKER</div>
+        <div class="subtitle">13 Mar – 8 Mei 2026 · 8 Minggu</div>
+      </div>
+      <div>
+        <div class="overall-label">Overall</div>
+        <div class="overall-pct" style="color:${pctColor}">${overallPct}%</div>
+        <div class="overall-sub">${totDone}/${totAll} tasks</div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${overallPct}%"></div></div>
+  </div>
+</div>
+<div class="content">
+  <div class="phase-tabs">
+    ${PHASE_INFO.map(p => `<button class="phase-tab${p.weeks.includes(state.week) ? " active" : ""}" onclick="selectPhase(${p.weeks[0]})"><div class="phase-tab-label">${p.label}</div><div class="phase-tab-sub">${p.sub}</div></button>`).join("")}
+  </div>
+  <div class="week-pills">
+    ${Array.from({ length: 8 }, (_, i) => i + 1).map(w => `<button class="week-pill${w === state.week ? " active" : ""}" onclick="selectWeek(${w})">W${w}</button>`).join("")}
+  </div>
+  <div class="day-grid">
+    ${days.map(d => {
+        const ts = DAILY[d.iso] || [];
+        const done = ts.filter(t => state.checked[d.iso + "__" + t.id]).length;
+        const pct = ts.length > 0 ? Math.round((done / ts.length) * 100) : 0;
+        const sel = d.iso === state.day;
+        const isT = d.iso === TODAY;
+        return `<button class="day-btn${sel ? " active" : ""}${isT ? " today" : ""}" onclick="selectDay('${d.iso}')">
+        <div class="day-name">${d.dn}</div>
+        <div class="day-num">${d.date}</div>
+        <div class="day-month">${MONTHS[d.month]}</div>
+        <div class="day-mini-bar"><div class="day-mini-fill" style="width:${pct}%"></div></div>
+        ${isT ? '<div class="today-dot">TODAY</div>' : ''}
+      </button>`;
+      }).join("")}
+  </div>
+  <div class="day-header">
+    <div><div class="day-title">${selLabel}</div><div class="day-meta">${phaseSub}</div></div>
+    <div><div class="day-count" style="color:${dayPctColor}">${dayDone}/${dayTotal}</div><div class="day-count-label">tasks selesai</div></div>
+  </div>
+  <div class="day-bar-wrap"><div class="day-bar-fill" style="width:${dayPct}%;background:${barColor}"></div></div>
+  <div class="tasks">
+    ${tasks.length === 0 ? `<div style="text-align:center;padding:2rem;color:#555570;font-size:13px">Tidak ada data untuk hari ini</div>` :
+          tasks.map(t => {
+            const done = !!state.checked[state.day + "__" + t.id];
+            return `<button class="task-btn${done ? " done" : ""}" onclick="toggle('${t.id}')">
+        <div class="checkbox${done ? " checked" : ""}">${done ? '<span class="checkmark">✓</span>' : ''}</div>
+        <div style="flex:1">
+          <div class="task-meta"><span class="${badgeClass(t.s)}">${t.s}</span><span class="task-time">${t.t}</span></div>
+          <div class="task-text">${t.task}</div>
+        </div>
+      </button>`;
+          }).join("")}
+  </div>
+  ${dayPct === 100 && dayTotal > 0 ? `<div class="done-banner">Hari ini selesai! Luar biasa — konsisten = 6.5+</div>` : ""}
+  <div class="tips">
+    <div class="tips-title">Quick tips speaking</div>
+    ${TIPS.map(([l, tip]) => `<div class="tip-row"><span class="tip-label">${l}:</span><span>${tip}</span></div>`).join("")}
+  </div>
+</div>`;
+    }
+
+    function selectPhase(w) { state.week = w; state.day = getWeekDays(w)[0].iso; saveState(); render(); }
+    function selectWeek(w) { state.week = w; state.day = getWeekDays(w)[0].iso; saveState(); render(); }
+    function selectDay(iso) { state.day = iso; saveState(); render(); }
+    function toggle(id) { const k = state.day + "__" + id; state.checked[k] = !state.checked[k]; saveState(); render(); }
+
+    render();
+  </script>
+</body>
+
+</html>
